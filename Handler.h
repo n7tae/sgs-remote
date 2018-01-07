@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011,2013 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@
 
 #include <string>
 
-#include "RemoteControlRepeaterData.h"
-#include "RemoteControlStarNetGroup.h"
-#include "RemoteControlCallsignData.h"
+#include "RepeaterData.h"
+#include "SmartGroup.h"
+#include "CallsignData.h"
 #include "UDPReaderWriter.h"
 
 enum RC_TYPE {
@@ -36,33 +36,33 @@ enum RC_TYPE {
 	RCT_STARNET
 };
 
-class CRemoteControlRemoteControlHandler {
+class CHandler {
 public:
-	CRemoteControlRemoteControlHandler(const std::string &address, unsigned int port);
-	~CRemoteControlRemoteControlHandler();
+	CHandler(const std::string &address, unsigned int port);
+	~CHandler();
 
 	bool open();
 
 	RC_TYPE readType();
 
-	std::string                 readNAK();
-	unsigned int                readRandom();
-	CRemoteControlCallsignData *readCallsigns();
-	CRemoteControlRepeaterData *readRepeater();
-	CRemoteControlStarNetGroup *readStarNetGroup();
+	std::string    readNAK();
+	unsigned int   readRandom();
+	CCallsignData *readCallsigns();
+	CRepeaterData *readRepeater();
+	CSmartGroup   *readSmartGroup();
 
 	bool login();
-	bool sendHash(const unsigned char* hash, unsigned int length);
+	bool sendHash(const unsigned char *hash, unsigned int length);
 
 	void setLoggedIn(bool set);
 
 	bool getCallsigns();
-	bool getRepeater(const std::string& callsign);
-	bool getStarNet(const std::string& callsign);
+	bool getRepeater(const std::string &callsign);
+	bool getSmartGroup(const std::string &callsign);
 
-	bool link(const std::string& callsign, RECONNECT reconnect, const std::string& reflector);
-	bool unlink(const std::string& callsign, PROTOCOL protocol, const std::string& reflector);
-	bool logoff(const std::string& callsign, const std::string& user);
+	bool link(const std::string &callsign, RECONNECT reconnect, const std::string &reflector);
+	bool unlink(const std::string &callsign, PROTOCOL protocol, const std::string &reflector);
+	bool logoff(const std::string &callsign, const std::string &user);
 
 	bool logout();
 

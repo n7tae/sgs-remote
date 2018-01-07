@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@
 #include <string>
 #include <cstdint>
 
-class CRemoteControlLinkData {
+class CLinkData {
 public:
-	CRemoteControlLinkData(const std::string &callsign, int32_t protocol, int32_t linked, int32_t direction, int32_t dongle);
-	~CRemoteControlLinkData();
+	CLinkData(const std::string &callsign, int32_t protocol, int32_t linked, int32_t direction, int32_t dongle);
+	~CLinkData();
 
 	std::string  getCallsign() const;
 	PROTOCOL     getProtocol() const;

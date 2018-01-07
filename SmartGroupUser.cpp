@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,30 +17,30 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "RemoteControlStarNetUser.h"
+#include "SmartGroupUser.h"
 
-CRemoteControlStarNetUser::CRemoteControlStarNetUser(const std::string &callsign, int32_t timer, int32_t timeout) :
+CSmartGroupUser::CSmartGroupUser(const std::string &callsign, int32_t timer, int32_t timeout) :
 m_callsign(callsign),
 m_timer((unsigned int)timer),
 m_timeout((unsigned int)timeout)
 {
 }
 
-CRemoteControlStarNetUser::~CRemoteControlStarNetUser()
+CSmartGroupUser::~CSmartGroupUser()
 {
 }
 
-std::string CRemoteControlStarNetUser::getCallsign() const
+std::string CSmartGroupUser::getCallsign() const
 {
 	return m_callsign;
 }
 
-unsigned int CRemoteControlStarNetUser::getTimer() const
+unsigned int CSmartGroupUser::getTimer() const
 {
 	return m_timer;
 }
 
-unsigned int CRemoteControlStarNetUser::getTimeout() const
+unsigned int CSmartGroupUser::getTimeout() const
 {
 	return m_timeout;
 }

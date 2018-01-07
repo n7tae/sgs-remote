@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "RemoteControlLinkData.h"
+#include "LinkData.h"
 
-CRemoteControlLinkData::CRemoteControlLinkData(const std::string &callsign, int32_t protocol, int32_t linked, int32_t direction, int32_t dongle) :
+CLinkData::CLinkData(const std::string &callsign, int32_t protocol, int32_t linked, int32_t direction, int32_t dongle) :
 m_callsign(callsign),
 m_protocol(PROTOCOL(protocol)),
 m_linked(false),
@@ -30,31 +30,31 @@ m_dongle(false)
 	m_dongle = dongle == 1;
 }
 
-CRemoteControlLinkData::~CRemoteControlLinkData()
+CLinkData::~CLinkData()
 {
 }
 
-std::string CRemoteControlLinkData::getCallsign() const
+std::string CLinkData::getCallsign() const
 {
 	return m_callsign;
 }
 
-PROTOCOL CRemoteControlLinkData::getProtocol() const
+PROTOCOL CLinkData::getProtocol() const
 {
 	return m_protocol;
 }
 
-bool CRemoteControlLinkData::isLinked() const
+bool CLinkData::isLinked() const
 {
 	return m_linked;
 }
 
-DIRECTION CRemoteControlLinkData::getDirection() const
+DIRECTION CLinkData::getDirection() const
 {
 	return m_direction;
 }
 
-bool CRemoteControlLinkData::isDongle() const
+bool CLinkData::isDongle() const
 {
 	return m_dongle;
 }

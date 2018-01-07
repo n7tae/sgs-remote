@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,22 +20,23 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
-class CRemoteControlCallsignData {
+class CCallsignData {
 public:
-	CRemoteControlCallsignData();
-	~CRemoteControlCallsignData();
+	CCallsignData();
+	~CCallsignData();
 
 	void addRepeater(const std::string &callsign);
 	void addStarNet(const std::string &callsign);
 
 	unsigned int getRepeaterCount() const;
-	unsigned int getStarNetCount() const;
+	unsigned int getSmartGroupCount() const;
 
 	std::string getRepeater(unsigned int n) const;
-	std::string getStarNet(unsigned int n) const;
+	std::string getSmartGroup(unsigned int n) const;
 
 private:
-	wxArrayString m_repeaters;
-	wxArrayString m_starNets;
+	std::vector<std::string> m_repeaters;
+	std::vector<std::string> m_smartGroups;
 };

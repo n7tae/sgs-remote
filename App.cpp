@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2013,2014 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,12 +21,12 @@
 #include <cassert>
 #include <cstring>
 
-#include "RemoteControlRemoteControlHandler.h"
+#include "Handler.h"
 #include "DStarDefines.h"
 #include "SHA256.h"
 #include "Defs.h"
 
-void sendHash(CRemoteControlRemoteControlHandler *handler, const std::string &password, unsigned int rnd)
+void sendHash(CHandler *handler, const std::string &password, unsigned int rnd)
 {
 	assert(handler != NULL);
 

@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,44 +17,44 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "RemoteControlCallsignData.h"
+#include "CallsignData.h"
 
-CRemoteControlCallsignData::CRemoteControlCallsignData() :
+CCallsignData::CCallsignData() :
 m_repeaters(),
-m_starNets()
+m_smartGroups()
 {
 }
 
-CRemoteControlCallsignData::~CRemoteControlCallsignData()
+CCallsignData::~CCallsignData()
 {
 }
 
-void CRemoteControlCallsignData::addRepeater(const std::string &callsign)
+void CCallsignData::addRepeater(const std::string &callsign)
 {
 	m_repeaters.push_back(callsign);
 }
 
-void CRemoteControlCallsignData::addStarNet(const std::string &callsign)
+void CCallsignData::addStarNet(const std::string &callsign)
 {
 	m_starNets.push_back(callsign);
 }
 
-unsigned int CRemoteControlCallsignData::getRepeaterCount() const
+unsigned int CCallsignData::getRepeaterCount() const
 {
 	return m_repeaters.size();
 }
 
-std::string CRemoteControlCallsignData::getRepeater(unsigned int n) const
+std::string CCallsignData::getRepeater(unsigned int n) const
 {
 	return m_repeaters.at(n);
 }
 
-unsigned int CRemoteControlCallsignData::getStarNetCount() const
+unsigned int CCallsignData::getSmartGroupCount() const
 {
-	return m_starNets.size();
+	return m_smartGroups.size();
 }
 
-std::string CRemoteControlCallsignData::getStarNet(unsigned int n) const
+std::string CCallsignData::getSmartGroup(unsigned int n) const
 {
-	return m_starNets.at(n);
+	return m_smartGroups.at(n);
 }

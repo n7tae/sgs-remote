@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,12 +23,12 @@
 #include <cstdint>
 #include <vector>
 
-#include "RemoteControlStarNetUser.h"
+#include "SmartGroupUser.h"
 
-class CRemoteControlStarNetGroup {
+class CSmartGroup {
 public:
-	CRemoteControlStarNetGroup(const std::string& callsign, const std::string& logoff, int32_t timer, int32_t timeout);
-	~CRemoteControlStarNetGroup();
+	CSmartGroup(const std::string& callsign, const std::string& logoff, int32_t timer, int32_t timeout);
+	~CSmartGroup();
 
 	void addUser(const std::string& callsign, int32_t timer, int32_t timeout);
 
@@ -38,13 +38,13 @@ public:
 	unsigned int getTimeout() const;
 
 	unsigned int getUserCount() const;
-	CRemoteControlStarNetUser &getUser(unsigned int n) const;
+	CSmartGroupUser &getUser(unsigned int n) const;
 
 private:
 	std::string  m_callsign;
 	std::string  m_logoff;
 	unsigned int m_timer;
 	unsigned int m_timeout;
-	std::vector<CRemoteControlStarNetUser>  m_users;
+	std::vector<CSmartGroupUser>  m_users;
 };
 

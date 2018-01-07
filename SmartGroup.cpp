@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "RemoteControlStarNetGroup.h"
+#include "CSmartGroup.h"
 
-CRemoteControlStarNetGroup::CRemoteControlStarNetGroup(const std::string& callsign, const std::string& logoff, int32_t timer, int32_t timeout) :
+CSmartGroup::CSmartGroup(const std::string& callsign, const std::string& logoff, int32_t timer, int32_t timeout) :
 m_callsign(callsign),
 m_logoff(logoff),
 m_timer((unsigned int)timer),
@@ -30,45 +30,45 @@ m_users()
 		m_logoff.erase();
 }
 
-CRemoteControlStarNetGroup::~CRemoteControlStarNetGroup()
+CSmartGroup::~CSmartGroup()
 {
 	while (! m_user.empty())
 		m_user.pop_back();
 }
 
-void CRemoteControlStarNetGroup::addUser(const std::string &callsign, int32_t timer, int32_t timeout)
+void CSmartGroup::addUser(const std::string &callsign, int32_t timer, int32_t timeout)
 {
 	CRemoteControlStarNetUser user(callsign, timer, timeout);
 
 	m_users.push_back(user);
 }
 
-std::string CRemoteControlStarNetGroup::getCallsign() const
+std::string CSmartGroup::getCallsign() const
 {
 	return m_callsign;
 }
 
-std::string CRemoteControlStarNetGroup::getLogoff() const
+std::string CSmartGroup::getLogoff() const
 {
 	return m_logoff;
 }
 
-unsigned int CRemoteControlStarNetGroup::getTimer() const
+unsigned int CSmartGroup::getTimer() const
 {
 	return m_timer;
 }
 
-unsigned int CRemoteControlStarNetGroup::getTimeout() const
+unsigned int CSmartGroup::getTimeout() const
 {
 	return m_timeout;
 }
 
-unsigned int CRemoteControlStarNetGroup::getUserCount() const
+unsigned int CSmartGroup::getUserCount() const
 {
 	return m_users.size();
 }
 
-CRemoteControlStarNetUser &CRemoteControlStarNetGroup::getUser(unsigned int n) const
+CRemoteControlStarNetUser &CSmartGroup::getUser(unsigned int n) const
 {
 	return m_users.at(n);
 }

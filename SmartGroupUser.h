@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@
 #include <string>
 #include <cstdint>
 
-class CRemoteControlStarNetUser {
+class CSmartGroupUser {
 public:
-	CRemoteControlStarNetUser(const std::string &callsign, int32_t timer, int32_t timeout);
-	~CRemoteControlStarNetUser();
+	CSmartGroupUser(const std::string &callsign, int32_t timer, int32_t timeout);
+	~CSmartGroupUser();
 
 	std::string  getCallsign() const;
 	unsigned int getTimer() const;

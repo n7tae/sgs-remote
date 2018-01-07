@@ -21,14 +21,14 @@
 #include <cstring>
 #include <cstdint>
 
-#include "RemoteControlRemoteControlHandler.h"
-#include "../DStarDefines.h"
+#include "Handler.h"
+#include "../smart-group-server/DStarDefines.h"
 
 const unsigned int BUFFER_LENGTH = 2000U;
 
 const unsigned int MAX_RETRIES = 3U;
 
-CRemoteControlRemoteControlHandler::CRemoteControlRemoteControlHandler(const std::string &address, unsigned int port) :
+CHandler::CHandler(const std::string &address, unsigned int port) :
 m_socket("", 0U),
 m_address(),
 m_port(port),
@@ -49,18 +49,18 @@ m_outLength(0U)
 	m_outBuffer = new unsigned char[BUFFER_LENGTH];
 }
 
-CRemoteControlRemoteControlHandler::~CRemoteControlRemoteControlHandler()
+CHandler::~CHandler()
 {
 	delete[] m_inBuffer;
 	delete[] m_outBuffer;
 }
 
-bool CRemoteControlRemoteControlHandler::open()
+bool CHandler::open()
 {
 	return m_socket.open();
 }
 
-RC_TYPE CRemoteControlRemoteControlHandler::readType()
+RC_TYPE CHandler::readType()
 {
 	m_type = RCT_NONE;
 
@@ -102,7 +102,7 @@ RC_TYPE CRemoteControlRemoteControlHandler::readType()
 	return m_type;
 }
 
-std::string CRemoteControlRemoteControlHandler::readNAK()
+std::string CHandler::readNAK()
 {
 	if (m_type != RCT_NAK)
 		return std::string("");
@@ -112,7 +112,7 @@ std::string CRemoteControlRemoteControlHandler::readNAK()
 	return text;
 }
 
-unsigned int CRemoteControlRemoteControlHandler::readRandom()
+unsigned int CHandler::readRandom()
 {
 	if (m_type != RCT_RANDOM)
 		return 0U;
@@ -123,12 +123,12 @@ unsigned int CRemoteControlRemoteControlHandler::readRandom()
 	return wxUINT32_SWAP_ON_BE(random);
 }
 
-CRemoteControlCallsignData *CRemoteControlRemoteControlHandler::readCallsigns()
+CCallsignData *CHandler::readCallsigns()
 {
 	if (m_type != RCT_CALLSIGNS)
 		return NULL;
 
-	CRemoteControlCallsignData* data = new CRemoteControlCallsignData;
+	CCallsignData* data = new CCallsignData;
 
 	unsigned char* p = m_inBuffer + 3U;
 	unsigned int pos = 3U;
@@ -157,7 +157,7 @@ CRemoteControlCallsignData *CRemoteControlRemoteControlHandler::readCallsigns()
 	return data;
 }
 
-CRemoteControlRepeaterData *CRemoteControlRemoteControlHandler::readRepeater()
+CRepeaterData *CHandler::readRepeater()
 {
 	if (m_type != RCT_REPEATER)
 		return NULL;
@@ -178,7 +178,7 @@ CRemoteControlRepeaterData *CRemoteControlRemoteControlHandler::readRepeater()
 	pos += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	CRemoteControlRepeaterData* data = new CRemoteControlRepeaterData(callsign, wxINT32_SWAP_ON_BE(reconnect), reflector);
+	CRepeaterData* data = new CRepeaterData(callsign, wxINT32_SWAP_ON_BE(reconnect), reflector);
 
 	while (pos < m_inLength) {
 		std::string callsign((char*)p, wxConvLocal, LONG_CALLSIGN_LENGTH);
@@ -211,7 +211,7 @@ CRemoteControlRepeaterData *CRemoteControlRemoteControlHandler::readRepeater()
 	return data;
 }
 
-CRemoteControlStarNetGroup *CRemoteControlRemoteControlHandler::readStarNetGroup()
+CStarNetGroup *CHandler::readStarNetGroup()
 {
 	if (m_type != RCT_STARNET)
 		return NULL;
@@ -237,7 +237,7 @@ CRemoteControlStarNetGroup *CRemoteControlRemoteControlHandler::readStarNetGroup
 	pos += sizeof(int32_t);
 	p += sizeof(int32_t);
 
-	CRemoteControlStarNetGroup *group = new CRemoteControlStarNetGroup(callsign, logoff, wxUINT32_SWAP_ON_BE(timer), wxUINT32_SWAP_ON_BE(timeout));
+	CStarNetGroup *group = new CStarNetGroup(callsign, logoff, wxUINT32_SWAP_ON_BE(timer), wxUINT32_SWAP_ON_BE(timeout));
 
 	while (pos < m_inLength) {
 		std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
@@ -260,7 +260,7 @@ CRemoteControlStarNetGroup *CRemoteControlRemoteControlHandler::readStarNetGroup
 	return group;
 }
 
-bool CRemoteControlRemoteControlHandler::login()
+bool CHandler::login()
 {
 	if (m_loggedIn)
 		return false;
@@ -281,12 +281,12 @@ bool CRemoteControlRemoteControlHandler::login()
 	}
 }
 
-void CRemoteControlRemoteControlHandler::setLoggedIn(bool set)
+void CHandler::setLoggedIn(bool set)
 {
 	m_loggedIn = set;
 }
 
-bool CRemoteControlRemoteControlHandler::getCallsigns()
+bool CHandler::getCallsigns()
 {
 	if (!m_loggedIn || m_retryCount > 0U)
 		return false;
@@ -304,7 +304,7 @@ bool CRemoteControlRemoteControlHandler::getCallsigns()
 	}
 }
 
-bool CRemoteControlRemoteControlHandler::sendHash(const unsigned char* hash, unsigned int length)
+bool CHandler::sendHash(const unsigned char *hash, unsigned int length)
 {
 	assert(hash != NULL);
 	assert(length > 0U);
@@ -333,7 +333,7 @@ bool CRemoteControlRemoteControlHandler::sendHash(const unsigned char* hash, uns
 	}
 }
 
-bool CRemoteControlRemoteControlHandler::getRepeater(const std::string& callsign)
+bool CHandler::getRepeater(const std::string &callsign)
 {
 	assert(!callsign.IsEmpty());
 
@@ -364,7 +364,7 @@ bool CRemoteControlRemoteControlHandler::getRepeater(const std::string& callsign
 	}
 }
 
-bool CRemoteControlRemoteControlHandler::getStarNet(const std::string& callsign)
+bool CHandler::getSmartGroup(const std::string &callsign)
 {
 	assert(!callsign.IsEmpty());
 
@@ -395,7 +395,7 @@ bool CRemoteControlRemoteControlHandler::getStarNet(const std::string& callsign)
 	}
 }
 
-bool CRemoteControlRemoteControlHandler::link(const std::string& callsign, RECONNECT reconnect, const std::string& reflector)
+bool CHandler::link(const std::string &callsign, RECONNECT reconnect, const std::string &reflector)
 {
 	assert(!callsign.IsEmpty());
 
@@ -439,7 +439,7 @@ bool CRemoteControlRemoteControlHandler::link(const std::string& callsign, RECON
 	}
 }
 
-bool CRemoteControlRemoteControlHandler::unlink(const std::string& callsign, PROTOCOL protocol, const std::string& reflector)
+bool CHandler::unlink(const std::string &callsign, PROTOCOL protocol, const std::string &reflector)
 {
 	assert(!callsign.IsEmpty());
 
@@ -483,7 +483,7 @@ bool CRemoteControlRemoteControlHandler::unlink(const std::string& callsign, PRO
 	}
 }
 
-bool CRemoteControlRemoteControlHandler::logoff(const std::string& callsign, const std::string& user)
+bool CHandler::logoff(const std::string &callsign, const std::string &user)
 {
 	assert(!callsign.IsEmpty());
 	assert(!user.IsEmpty());
@@ -522,7 +522,7 @@ bool CRemoteControlRemoteControlHandler::logoff(const std::string& callsign, con
 	}
 }
 
-bool CRemoteControlRemoteControlHandler::logout()
+bool CHandler::logout()
 {
 	if (!m_loggedIn || m_retryCount > 0U)
 		return false;
@@ -543,7 +543,7 @@ bool CRemoteControlRemoteControlHandler::logout()
 	return true;
 }
 
-bool CRemoteControlRemoteControlHandler::retry()
+bool CHandler::retry()
 {
 	if (m_retryCount > 0U) {
 		m_retryCount++;
@@ -558,7 +558,7 @@ bool CRemoteControlRemoteControlHandler::retry()
 	return true;
 }
 
-void CRemoteControlRemoteControlHandler::close()
+void CHandler::close()
 {
 	m_socket.close();
 }

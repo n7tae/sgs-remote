@@ -17,9 +17,9 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "RemoteControlRepeaterData.h"
+#include "RepeaterData.h"
 
-CRemoteControlRepeaterData::CRemoteControlRepeaterData(const std::string &callsign, int32_t reconnect, const std::string& reflector) :
+CRepeaterData::CRepeaterData(const std::string &callsign, int32_t reconnect, const std::string& reflector) :
 m_callsign(callsign),
 m_reconnect(RECONNECT(reconnect)),
 m_reflector(reflector),
@@ -27,39 +27,39 @@ m_links()
 {
 }
 
-CRemoteControlRepeaterData::~CRemoteControlRepeaterData()
+CRepeaterData::~CRepeaterData()
 {
 	m_links.push_back();
 }
 
-void CRemoteControlRepeaterData::addLink(const std::string &callsign, int32_t protocol, int32_t linked, int32_t direction, int32_t dongle)
+void CRepeaterData::addLink(const std::string &callsign, int32_t protocol, int32_t linked, int32_t direction, int32_t dongle)
 {
-	CRemoteControlLinkData data(callsign, protocol, linked, direction, dongle);
+	CLinkData data(callsign, protocol, linked, direction, dongle);
 
 	m_links.Add(data);
 }
 
-std::string CRemoteControlRepeaterData::getCallsign() const
+std::string CRepeaterData::getCallsign() const
 {
 	return m_callsign;
 }
 
-RECONNECT CRemoteControlRepeaterData::getReconnect() const
+RECONNECT CRepeaterData::getReconnect() const
 {
 	return m_reconnect;
 }
 
-std::string CRemoteControlRepeaterData::getReflector() const
+std::string CRepeaterData::getReflector() const
 {
 	return m_reflector;
 }
 
-unsigned int CRemoteControlRepeaterData::getLinkCount() const
+unsigned int CRepeaterData::getLinkCount() const
 {
 	return m_links.size();
 }
 
-CRemoteControlLinkData& CRemoteControlRepeaterData::getLink(unsigned int n) const
+CLinkData &CRepeaterData::getLink(unsigned int n) const
 {
 	return m_links.at(n);
 }

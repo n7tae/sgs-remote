@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2017 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,14 +22,12 @@
 #include <string>
 #include <vector>
 
-#include "RemoteControlLinkData.h"
+#include "LinkData.h"
 
-WX_DECLARE_OBJARRAY(CRemoteControlLinkData, CRemoteLinkData_t);
-
-class CRemoteControlRepeaterData {
+class CRepeaterData {
 public:
-	CRemoteControlRepeaterData(const std::string &callsign, int32_t reconnect, const std::string& reflector);
-	~CRemoteControlRepeaterData();
+	CRepeaterData(const std::string &callsign, int32_t reconnect, const std::string& reflector);
+	~CRepeaterData();
 
 	void addLink(const std::string &callsign, int32_t protocol, int32_t linked, int32_t direction, int32_t dongle);
 
@@ -38,13 +36,13 @@ public:
 	std::string getReflector() const;
 
 	unsigned int getLinkCount() const;
-	CRemoteControlLinkData& getLink(unsigned int n) const;
+	CLinkData &getLink(unsigned int n) const;
 
 private:
 	std::string m_callsign;
 	RECONNECT   m_reconnect;
 	std::string m_reflector;
-	std::vector<CRemoteControlLinkData> m_links;
+	std::vector<CLinkData> m_links;
 };
 
 #endif
