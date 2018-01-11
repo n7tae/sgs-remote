@@ -17,14 +17,18 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <sys/stat.h>
 #include <string>
 #include <cassert>
 #include <cstring>
+#include <cstdlib>
+#include <thread>
+#include <chrono>
 
+#include "Config.h"
 #include "Handler.h"
 #include "DStarDefines.h"
 #include "SHA256.h"
-#include "Defs.h"
 
 void sendHash(CHandler *handler, const std::string &password, unsigned int rnd)
 {
@@ -47,121 +51,134 @@ void sendHash(CHandler *handler, const std::string &password, unsigned int rnd)
 	delete[] out;
 }
 
+static void RepRes2Up(std::string &name)	//replace, resize, to upper
+{
+	for (unsigned int i=0; i<name.size(); i++) {
+		if ('_' == name[i])
+			name[i] = ' ';
+		else if (islower(name[i]))
+			name[i] = toupper(name[i]);
+	}
+	name.resize(LONG_CALLSIGN_LENGTH, ' ');
+}
+
 int main(int argc, char *argv[])
 {
-	std::string name;
-	parser.Found(NAME_OPTION, &name);
-
-	if (parser.GetParamCount() < 2U) {
-		fprintf(stderr, "remotecontrold: invalid command line usage: remotecontrold [-name <name>] <repeater> link <reconnect> <reflector>\n");
-		fprintf(stderr, "                                            remotecontrold [-name <name>] <repeater> unlink\n");
-		fprintf(stderr, "                                            remotecontrold [-name <name>] <starnet> drop <user>\n");
-		fprintf(stderr, "                                            remotecontrold [-name <name>] <starnet> drop all\n");
+	if (argc < 4 || argc > 6) {
+		fprintf(stderr, "remotecontrold: invalid command line usage: %s <smartservername> <subscribe> link <reconnect> <reflector>\n", argv[0]);
+		fprintf(stderr, "                                            %s <smartservername> <subscribe> unlink\n", argv[0]);
+		fprintf(stderr, "                                            %s <smartservername> <subscribe> drop <user>\n", argv[0]);
+		fprintf(stderr, "                                            %s <smartservername> <subscribe> drop all\n", argv[0]);
 		return 1;
 	}
 
-	std::string repeater = parser.GetParam(0U);
-	repeater.Replace(wxT("_"), wxT(" "));
-	repeater.resize(LONG_CALLSIGN_LENGTH, wxT(' '));
-	repeater.MakeUpper();
+	std::string smartserver(argv[1]);
+	std::string subscribe(argv[2]);
+	RepRes2Up(subscribe);
 
-	std::string actionText = parser.GetParam(1U);
+	std::string action(argv[3]);
 
 	std::string  user;						// For STARnet Digital
 	std::string  reflector;					// For linking
 	RECONNECT reconnect = RECONNECT_NEVER;	// For linking
 
-	if (actionText.IsSameAs(wxT("link"), false)) {
-		if (parser.GetParamCount() < 4U) {
-			fprintf(stderr, "remotecontrold: invalid command line usage: remotecontrold [-name <name>] <repeater> link <reconnect> <reflector>\n");
+	if (0 == action.compare("link")) {
+		if (6 != argc) {
+			fprintf(stderr, "invalid command line! usage: %s <smartservername> <subscribe> link <reconnect> <reflector>\n", argv[0]);
 			return 1;
 		}
 
-		std::string reconnectText = parser.GetParam(2U);
+		std::string reconnectText(argv[4]);
 
-		reflector = parser.GetParam(3U);
-		reflector.Replace(wxT("_"), wxT(" "));
-		reflector.resize(LONG_CALLSIGN_LENGTH, wxT(' '));
-		reflector.MakeUpper();
+		reflector = std::string(argv[5]);
+		RepRes2Up(reflector);
 
-		if (reconnectText.IsSameAs(wxT("never"), false)) {
+		if        (0 == reconnectText.compare("never")) {
 			reconnect = RECONNECT_NEVER;
-		} else if (reconnectText.IsSameAs(wxT("fixed"), false)) {
+		} else if (0 == reconnectText.compare("fixed")) {
 			reconnect = RECONNECT_FIXED;
-		} else if (reconnectText.IsSameAs(wxT("5"), false)) {
+		} else if (0 == reconnectText.compare("5")) {
 			reconnect = RECONNECT_5MINS;
-		} else if (reconnectText.IsSameAs(wxT("10"), false)) {
+		} else if (0 == reconnectText.compare("10")) {
 			reconnect = RECONNECT_10MINS;
-		} else if (reconnectText.IsSameAs(wxT("15"), false)) {
+		} else if (reconnectText.compare("15")) {
 			reconnect = RECONNECT_15MINS;
-		} else if (reconnectText.IsSameAs(wxT("20"), false)) {
+		} else if (reconnectText.compare("20")) {
 			reconnect = RECONNECT_20MINS;
-		} else if (reconnectText.IsSameAs(wxT("25"), false)) {
+		} else if (reconnectText.compare("25")) {
 			reconnect = RECONNECT_25MINS;
-		} else if (reconnectText.IsSameAs(wxT("30"), false)) {
+		} else if (reconnectText.compare("30")) {
 			reconnect = RECONNECT_30MINS;
-		} else if (reconnectText.IsSameAs(wxT("60"), false)) {
+		} else if (reconnectText.compare("60")) {
 			reconnect = RECONNECT_60MINS;
-		} else if (reconnectText.IsSameAs(wxT("90"), false)) {
+		} else if (reconnectText.compare("90")) {
 			reconnect = RECONNECT_90MINS;
-		} else if (reconnectText.IsSameAs(wxT("120"), false)) {
+		} else if (reconnectText.compare("120")) {
 			reconnect = RECONNECT_120MINS;
-		} else if (reconnectText.IsSameAs(wxT("180"), false)) {
+		} else if (reconnectText.compare("180")) {
 			reconnect = RECONNECT_180MINS;
 		} else {
-			fprintf(stderr, "remotecontrold: invalid reconnect value passed\n");
-			::wxUninitialize();
+			fprintf(stderr, "%s: invalid reconnect value\n", argv[0]);
+			fprintf(stderr, "Valid reconnect values are never, fixed, 5, 10, 15, 20, 25, 30, 60, 90, 120, 180.\n");
 			return 1;
 		}
-	} else if (actionText.IsSameAs(wxT("unlink"), false)) {
+	} else if (0 == action.compare("unlink")) {
 		reconnect = RECONNECT_NEVER;
-		reflector.Clear();
-	} else if (actionText.IsSameAs(wxT("drop"), false)) {
-		if (parser.GetParamCount() < 3U) {
-			fprintf(stderr, "remotecontrold: invalid command line usage: remotecontrold [-name <name>] <starnet> drop <user>\n");
-			fprintf(stderr, "                                            remotecontrold [-name <name>] <starnet> drop all\n");
-			::wxUninitialize();
+		reflector.clear();
+	} else if (0 == action.compare("drop")) {
+		if (5 != argc) {
+			fprintf(stderr, "%s: invalid command line usage: %s <smartservername> <subscribe> drop <user>\n", argv[0], argv[0]);
+			fprintf(stderr, "                                %s <smartservername> <subscribe> drop all\n", argv[0]);
 			return 1;
 		}
 
-		user = parser.GetParam(2U);
-		user.Replace(wxT("_"), wxT(" "));
-		user.resize(LONG_CALLSIGN_LENGTH, wxT(' '));
-		user.MakeUpper();
+		user = std::string(argv[4]);
+		RepRes2Up(user);
 	} else {
-		fprintf(stderr, "remotecontrold: invalid action value passed, only drop, link or unlink are allowed\n");
+		fprintf(stderr, "%s: invalid action value passed, only drop, link or unlink are allowed\n", argv[0]);
 		return 1;
 	}
 
-	CRemoteControlConfig config(new wxConfig(APPLICATION_NAME), name);
+	std::string cfgfile(getenv("HOME"));
+	cfgfile.append("/.config/sgsremote.conf");
+	struct stat buf;
+	if (stat(cfgfile.c_str(), &buf)) {
+		cfgfile.assign("/usr/local/etc/sgsremote.conf");
+		if (stat(cfgfile.c_str(), &buf)) {
+			fprintf(stderr, "ERROR: no configuration file found, exiting!\n");
+			return 1;
+		}
+	}
+	CConfig config(cfgfile);
 
 	std::string address, password;
 	unsigned int port;
-	config.getConfig(address, port, password);
-
-	if (address.IsEmpty() || port == 0U || password.IsEmpty()) {
-		fprintf(stderr, "remotecontrold: no address, port, or password is set\n");
+	if (false == config.getConfig(smartserver, address, port, password)) {
+		fprintf(stderr, "%s: '%s' smartserver not found in configuration file!\n", argv[0], smartserver.c_str());
 		return 1;
 	}
 
-	CRemoteControlRemoteControlHandler handler(address, port);
-
-	bool ret = handler.open();
-	if (!ret) {
-		fprintf(stderr, "remotecontrold: uanble to open the UDP port\n");
+	if (0==address.size() || port == 0U || 0==password.size()) {
+		fprintf(stderr, "%s: no address, port or password is set\n", argv[0]);
 		return 1;
 	}
 
-	ret = handler.login();
-	if (!ret) {
+	CHandler handler(address, port);
+
+	if (false == handler.open()) {
+		fprintf(stderr, "%s: uanble to open the UDP port %d\n", argv[0], port);
+		return 1;
+	}
+
+	if (false == handler.login()) {
 		handler.close();
-		fprintf(stderr, "remotecontrold: uanble to login to the gateway/starnetserver\n");
+		fprintf(stderr, "%s: uanble to login to the smart-group-server %s\n", argv[0], smartserver.c_str());
 		return 1;
 	}
 
 	unsigned int count = 0U;
 	while (count < 10U) {
-		::wxMilliSleep(100UL);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 		RC_TYPE type = handler.readType();
 		if (type == RCT_RANDOM)
@@ -175,7 +192,7 @@ int main(int argc, char *argv[])
 
 	if (count >= 10U) {
 		handler.close();
-		fprintf(stderr, "remotecontrold: unable to get a response from the gateway/starnetserver\n");
+		fprintf(stderr, "%s: unable to get a response from the gateway/starnetserver\n", argv[0]);
 		return 1;
 	}
 
@@ -184,7 +201,7 @@ int main(int argc, char *argv[])
 
 	count = 0U;
 	while (count < 10U) {
-		::wxMilliSleep(100UL);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 		RC_TYPE type = handler.readType();
 		if (type == RCT_ACK)
@@ -192,7 +209,7 @@ int main(int argc, char *argv[])
 
 		if (type == RCT_NAK) {
 			handler.close();
-			fprintf(stderr, "remotecontrold: invalid password sent to the gateway/starnetserver\n");
+			fprintf(stderr, "%s: invalid password sent to the smart-group-server\n", argv[0]);
 			return 1;
 		}
 
@@ -204,21 +221,20 @@ int main(int argc, char *argv[])
 
 	if (count >= 10U) {
 		handler.close();
-		fprintf(stderr, "remotecontrold: unable to get a response from the gateway/starnetserver\n");
-		::wxUninitialize();
+		fprintf(stderr, "%s: unable to get a response from the smart-group-server\n", argv[0]);
 		return 1;
 	}
 
 	handler.setLoggedIn(true);
 
-	if (actionText.IsSameAs(wxT("drop"), false))
-		handler.logoff(repeater, user);
+	if (0 == action.compare("drop"))
+		handler.logoff(subscribe, user);
 	else
-		handler.link(repeater, reconnect, reflector);
+		handler.link(subscribe, reconnect, reflector);
 
 	count = 0U;
 	while (count < 10U) {
-		::wxMilliSleep(100UL);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 		RC_TYPE type = handler.readType();
 		if (type == RCT_ACK)
@@ -226,7 +242,7 @@ int main(int argc, char *argv[])
 
 		if (type == RCT_NAK) {
 			handler.close();
-			fprintf(stderr, "remotecontrold: drop/link/unlink command rejected by the gateway/starnetserver\n");
+			fprintf(stderr, "%s: drop/link/unlink command rejected by the smart-group-server\n", argv[0]);
 			return 1;
 		}
 
@@ -238,11 +254,11 @@ int main(int argc, char *argv[])
 
 	if (count >= 10U) {
 		handler.close();
-		fprintf(stderr, "remotecontrold: unable to get a response from the gateway/starnetserver\n");
+		fprintf(stderr, "%s: unable to get a response from the smart-group-server\n", argv[0]);
 		return 1;
 	}
 
-	fprintf(stdout, "remotecontrold: command accepted by the gateway/starnetserver\n");
+	fprintf(stdout, "%s: command accepted by the gateway/starnetserver\n", argv[0]);
 
 	handler.logout();
 	handler.close();

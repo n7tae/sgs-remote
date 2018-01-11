@@ -120,7 +120,7 @@ unsigned int CHandler::readRandom()
 	int32_t random;
 	memcpy(&random, m_inBuffer + 3U, sizeof(int32_t));
 
-	return wxUINT32_SWAP_ON_BE(random);
+	return random;
 }
 
 CCallsignData *CHandler::readCallsigns()
@@ -138,7 +138,7 @@ CCallsignData *CHandler::readCallsigns()
 		pos += 1U;
 		p += 1U;
 
-		std::string callsign((char*)p, wxConvLocal, LONG_CALLSIGN_LENGTH);
+		std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
 		pos += LONG_CALLSIGN_LENGTH;
 		p += LONG_CALLSIGN_LENGTH;
 
@@ -165,7 +165,7 @@ CRepeaterData *CHandler::readRepeater()
 	unsigned char* p = m_inBuffer + 3U;
 	unsigned int pos = 3U;
 
-	std::string callsign((char*)p, wxConvLocal, LONG_CALLSIGN_LENGTH);
+	std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
 	pos += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
@@ -174,14 +174,14 @@ CRepeaterData *CHandler::readRepeater()
 	pos += sizeof(int32_t);
 	p += sizeof(int32_t);
 
-	std::string reflector((char*)p, wxConvLocal, LONG_CALLSIGN_LENGTH);
+	std::string reflector((char*)p, LONG_CALLSIGN_LENGTH);
 	pos += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	CRepeaterData* data = new CRepeaterData(callsign, wxINT32_SWAP_ON_BE(reconnect), reflector);
+	CRepeaterData* data = new CRepeaterData(callsign, reconnect, reflector);
 
 	while (pos < m_inLength) {
-		std::string callsign((char*)p, wxConvLocal, LONG_CALLSIGN_LENGTH);
+		std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
 		pos += LONG_CALLSIGN_LENGTH;
 		p += LONG_CALLSIGN_LENGTH;
 
@@ -205,13 +205,13 @@ CRepeaterData *CHandler::readRepeater()
 		pos += sizeof(int32_t);
 		p += sizeof(int32_t);
 
-		data->addLink(callsign, wxINT32_SWAP_ON_BE(protocol), wxINT32_SWAP_ON_BE(linked), wxINT32_SWAP_ON_BE(direction), wxINT32_SWAP_ON_BE(dongle));
+		data->addLink(callsign, protocol, linked, direction, dongle);
 	}
 
 	return data;
 }
 
-CStarNetGroup *CHandler::readStarNetGroup()
+CSmartGroup *CHandler::readSmartGroup()
 {
 	if (m_type != RCT_STARNET)
 		return NULL;
@@ -219,11 +219,11 @@ CStarNetGroup *CHandler::readStarNetGroup()
 	unsigned char* p = m_inBuffer + 3U;
 	unsigned int pos = 3U;
 
-	std::string callsign((char*)p, wxConvLocal, LONG_CALLSIGN_LENGTH);
+	std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
 	pos += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	std::string logoff((char*)p, wxConvLocal, LONG_CALLSIGN_LENGTH);
+	std::string logoff((char*)p, LONG_CALLSIGN_LENGTH);
 	pos += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
@@ -237,7 +237,7 @@ CStarNetGroup *CHandler::readStarNetGroup()
 	pos += sizeof(int32_t);
 	p += sizeof(int32_t);
 
-	CStarNetGroup *group = new CStarNetGroup(callsign, logoff, wxUINT32_SWAP_ON_BE(timer), wxUINT32_SWAP_ON_BE(timeout));
+	CSmartGroup *group = new CSmartGroup(callsign, logoff, timer, timeout);
 
 	while (pos < m_inLength) {
 		std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
@@ -335,7 +335,7 @@ bool CHandler::sendHash(const unsigned char *hash, unsigned int length)
 
 bool CHandler::getRepeater(const std::string &callsign)
 {
-	assert(!callsign.IsEmpty());
+	assert(callsign.size());
 
 	if (!m_loggedIn || m_retryCount > 0U)
 		return false;
@@ -348,8 +348,8 @@ bool CHandler::getRepeater(const std::string &callsign)
 	p += 3U;
 
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < callsign.Len(); i++)
-		p[i] = callsign.GetChar(i);
+	for (unsigned int i = 0U; i < callsign.size(); i++)
+		p[i] = callsign.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
@@ -366,7 +366,7 @@ bool CHandler::getRepeater(const std::string &callsign)
 
 bool CHandler::getSmartGroup(const std::string &callsign)
 {
-	assert(!callsign.IsEmpty());
+	assert(callsign.size());
 
 	if (!m_loggedIn || m_retryCount > 0U)
 		return false;
@@ -379,8 +379,8 @@ bool CHandler::getSmartGroup(const std::string &callsign)
 	p += 3U;
 
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < callsign.Len(); i++)
-		p[i] = callsign.GetChar(i);
+	for (unsigned int i = 0U; i < callsign.size(); i++)
+		p[i] = callsign.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
@@ -397,7 +397,7 @@ bool CHandler::getSmartGroup(const std::string &callsign)
 
 bool CHandler::link(const std::string &callsign, RECONNECT reconnect, const std::string &reflector)
 {
-	assert(!callsign.IsEmpty());
+	assert(callsign.size());
 
 	if (!m_loggedIn || m_retryCount > 0U)
 		return false;
@@ -410,21 +410,21 @@ bool CHandler::link(const std::string &callsign, RECONNECT reconnect, const std:
 	p += 3U;
 
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < callsign.Len(); i++)
-		p[i] = callsign.GetChar(i);
+	for (unsigned int i = 0U; i < callsign.size(); i++)
+		p[i] = callsign.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
 	int32_t temp1 = int32_t(reconnect);
-	int32_t temp2 = wxINT32_SWAP_ON_BE(temp1);
+	int32_t temp2 = temp1;
 	memcpy(p, &temp2, sizeof(int32_t));
 	m_outLength += sizeof(int32_t);
 	p += sizeof(int32_t);
 
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < reflector.Len(); i++)
-		p[i] = reflector.GetChar(i);
+	for (unsigned int i = 0U; i < reflector.size(); i++)
+		p[i] = reflector.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
@@ -441,7 +441,7 @@ bool CHandler::link(const std::string &callsign, RECONNECT reconnect, const std:
 
 bool CHandler::unlink(const std::string &callsign, PROTOCOL protocol, const std::string &reflector)
 {
-	assert(!callsign.IsEmpty());
+	assert(callsign.size());
 
 	if (!m_loggedIn || m_retryCount > 0U)
 		return false;
@@ -454,21 +454,21 @@ bool CHandler::unlink(const std::string &callsign, PROTOCOL protocol, const std:
 	p += 3U;
 
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < callsign.Len(); i++)
-		p[i] = callsign.GetChar(i);
+	for (unsigned int i = 0U; i < callsign.size(); i++)
+		p[i] = callsign.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
 	int32_t temp1 = int32_t(protocol);
-	int32_t temp2 = wxINT32_SWAP_ON_BE(temp1);
+	int32_t temp2 = temp1;
 	memcpy(p, &temp2, sizeof(int32_t));
 	m_outLength += sizeof(int32_t);
 	p += sizeof(int32_t);
 
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < reflector.Len(); i++)
-		p[i] = reflector.GetChar(i);
+	for (unsigned int i = 0U; i < reflector.size(); i++)
+		p[i] = reflector.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
@@ -485,8 +485,8 @@ bool CHandler::unlink(const std::string &callsign, PROTOCOL protocol, const std:
 
 bool CHandler::logoff(const std::string &callsign, const std::string &user)
 {
-	assert(!callsign.IsEmpty());
-	assert(!user.IsEmpty());
+	assert(callsign.size());
+	assert(user.size());
 
 	if (!m_loggedIn || m_retryCount > 0U)
 		return false;
@@ -499,15 +499,15 @@ bool CHandler::logoff(const std::string &callsign, const std::string &user)
 	p += 3U;
 
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < callsign.Len(); i++)
-		p[i] = callsign.GetChar(i);
+	for (unsigned int i = 0U; i < callsign.size(); i++)
+		p[i] = callsign.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < user.Len(); i++)
-		p[i] = user.GetChar(i);
+	for (unsigned int i = 0U; i < user.size(); i++)
+		p[i] = user.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;

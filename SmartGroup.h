@@ -38,7 +38,7 @@ public:
 	unsigned int getTimeout() const;
 
 	unsigned int getUserCount() const;
-	CSmartGroupUser &getUser(unsigned int n) const;
+	const CSmartGroupUser &getUser(unsigned int n) const;
 
 private:
 	std::string  m_callsign;

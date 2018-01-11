@@ -29,14 +29,14 @@ m_links()
 
 CRepeaterData::~CRepeaterData()
 {
-	m_links.push_back();
+	m_links.clear();
 }
 
 void CRepeaterData::addLink(const std::string &callsign, int32_t protocol, int32_t linked, int32_t direction, int32_t dongle)
 {
 	CLinkData data(callsign, protocol, linked, direction, dongle);
 
-	m_links.Add(data);
+	m_links.push_back(data);
 }
 
 std::string CRepeaterData::getCallsign() const
@@ -59,7 +59,7 @@ unsigned int CRepeaterData::getLinkCount() const
 	return m_links.size();
 }
 
-CLinkData &CRepeaterData::getLink(unsigned int n) const
+const CLinkData &CRepeaterData::getLink(unsigned int n) const
 {
 	return m_links.at(n);
 }

@@ -36,7 +36,7 @@ void CCallsignData::addRepeater(const std::string &callsign)
 
 void CCallsignData::addStarNet(const std::string &callsign)
 {
-	m_starNets.push_back(callsign);
+	m_smartGroups.push_back(callsign);
 }
 
 unsigned int CCallsignData::getRepeaterCount() const

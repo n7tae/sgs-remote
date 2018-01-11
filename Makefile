@@ -1,6 +1,5 @@
 # Copyright (c) 2018 by Thomas A. Early N7TAE
 
-# if you change these locations, make sure the sgs.service file is updated!
 BINDIR=/usr/local/bin
 CFGDIR=/usr/local/etc
 
@@ -27,3 +26,9 @@ clean:
 -include $(DEPS)
 
 # install and uninstall need root priviledges
+install : sgsremote
+	/bin/cp sgsremote $(BINDIR)
+	/bin/cp sgsremote.conf $(CFGDIR)
+uninstall :
+	/bin/rm $(BINDIR)/sgsremote
+	/bin/rm $(CFGDIR)/sgsremote.conf

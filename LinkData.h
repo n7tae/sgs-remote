@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "Defs.h"
-
 #include <string>
 #include <cstdint>
+
+#include "Defs.h"
 
 class CLinkData {
 public:

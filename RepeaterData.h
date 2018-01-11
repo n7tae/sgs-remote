@@ -36,7 +36,7 @@ public:
 	std::string getReflector() const;
 
 	unsigned int getLinkCount() const;
-	CLinkData &getLink(unsigned int n) const;
+	const CLinkData &getLink(unsigned int n) const;
 
 private:
 	std::string m_callsign;
@@ -44,5 +44,3 @@ private:
 	std::string m_reflector;
 	std::vector<CLinkData> m_links;
 };
-
-#endif

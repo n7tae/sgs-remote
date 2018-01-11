@@ -17,7 +17,7 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "CSmartGroup.h"
+#include "SmartGroup.h"
 
 CSmartGroup::CSmartGroup(const std::string& callsign, const std::string& logoff, int32_t timer, int32_t timeout) :
 m_callsign(callsign),
@@ -32,13 +32,12 @@ m_users()
 
 CSmartGroup::~CSmartGroup()
 {
-	while (! m_user.empty())
-		m_user.pop_back();
+	m_users.clear();
 }
 
 void CSmartGroup::addUser(const std::string &callsign, int32_t timer, int32_t timeout)
 {
-	CRemoteControlStarNetUser user(callsign, timer, timeout);
+	CSmartGroupUser user(callsign, timer, timeout);
 
 	m_users.push_back(user);
 }
@@ -68,7 +67,7 @@ unsigned int CSmartGroup::getUserCount() const
 	return m_users.size();
 }
 
-CRemoteControlStarNetUser &CSmartGroup::getUser(unsigned int n) const
+const CSmartGroupUser &CSmartGroup::getUser(unsigned int n) const
 {
 	return m_users.at(n);
 }
