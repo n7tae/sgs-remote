@@ -227,17 +227,29 @@ CSmartGroup *CHandler::readSmartGroup()
 	pos += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	int32_t timer;
-	memcpy(&timer, p, sizeof(int32_t));
-	pos += sizeof(int32_t);
-	p += sizeof(int32_t);
+	std::string repeater((char *)p, LONG_CALLSIGN_LENGTH);
+	pos += LONG_CALLSIGN_LENGTH;
+	p += LONG_CALLSIGN_LENGTH;
 
-	int32_t timeout;
-	memcpy(&timeout, p, sizeof(int32_t));
-	pos += sizeof(int32_t);
-	p += sizeof(int32_t);
+	std::string infoText((char *)p, 20);
+	pos += 20;
+	p += 20;
 
-	CSmartGroup *group = new CSmartGroup(callsign, logoff, timer, timeout);
+	std::string reflector((char *)p, LONG_CALLSIGN_LENGTH);
+	pos += LONG_CALLSIGN_LENGTH;
+	p += LONG_CALLSIGN_LENGTH;
+
+	LINK_STATUS ls;
+	memcpy(&ls, p, sizeof(enum LINK_STATUS));
+	pos += sizeof(enum LINK_STATUS);
+	p += sizeof(enum LINK_STATUS);
+
+	unsigned int ut;
+	memcpy(&ut, p, sizeof(unsigned int));
+	pos += sizeof(unsigned int);
+	p += sizeof(unsigned int);
+
+	CSmartGroup *group = new CSmartGroup(callsign, logoff, repeater, infoText, reflector, ls, ut);
 
 	while (pos < m_inLength) {
 		std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);

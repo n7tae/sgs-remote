@@ -19,11 +19,15 @@
 
 #include "SmartGroup.h"
 
-CSmartGroup::CSmartGroup(const std::string& callsign, const std::string& logoff, int32_t timer, int32_t timeout) :
+CSmartGroup::CSmartGroup(const std::string &callsign, const std::string &logoff, const std::string &repeater, const std::string &infoText, const std::string &reflector,
+			LINK_STATUS linkStatus, unsigned int userTimeout) :
 m_callsign(callsign),
 m_logoff(logoff),
-m_timer((unsigned int)timer),
-m_timeout((unsigned int)timeout),
+m_repeater(repeater),
+m_infoText(infoText),
+m_linkReflector(reflector),
+m_linkStatus(linkStatus),
+m_userTimeout(userTimeout),
 m_users()
 {
 	if (0 == m_logoff.compare("        "))
@@ -52,14 +56,29 @@ std::string CSmartGroup::getLogoff() const
 	return m_logoff;
 }
 
-unsigned int CSmartGroup::getTimer() const
+std::string CSmartGroup::getRepeater() const
 {
-	return m_timer;
+	return m_repeater;
 }
 
-unsigned int CSmartGroup::getTimeout() const
+std::string CSmartGroup::getInfoText() const
 {
-	return m_timeout;
+	return m_infoText;
+}
+
+std::string CSmartGroup::getReflector() const
+{
+	return m_linkReflector;
+}
+
+LINK_STATUS CSmartGroup::getLinkStatus()
+{
+	return m_linkStatus;
+}
+
+unsigned int CSmartGroup::getUserTimeout()
+{
+	return m_userTimeout;
 }
 
 unsigned int CSmartGroup::getUserCount() const

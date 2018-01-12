@@ -23,28 +23,36 @@
 #include <cstdint>
 #include <vector>
 
+#include "Defs.h"
 #include "SmartGroupUser.h"
 
 class CSmartGroup {
 public:
-	CSmartGroup(const std::string& callsign, const std::string& logoff, int32_t timer, int32_t timeout);
+	CSmartGroup(const std::string &callsign, const std::string &logoff, const std::string &repeater, const std::string &infoText, const std::string &reflector,
+			LINK_STATUS linkStatus, unsigned int userTimeout);
 	~CSmartGroup();
 
-	void addUser(const std::string& callsign, int32_t timer, int32_t timeout);
+	void addUser(const std::string &callsign, int32_t timer, int32_t timeout);
 
-	std::string  getCallsign() const;
-	std::string  getLogoff() const;
-	unsigned int getTimer() const;
-	unsigned int getTimeout() const;
+	std::string getCallsign() const;
+	std::string getLogoff() const;
+	std::string getRepeater() const;
+	std::string getInfoText() const;
+	std::string getReflector() const;
+	LINK_STATUS getLinkStatus();
+	unsigned int getUserTimeout();
 
 	unsigned int getUserCount() const;
 	const CSmartGroupUser &getUser(unsigned int n) const;
 
 private:
-	std::string  m_callsign;
-	std::string  m_logoff;
-	unsigned int m_timer;
-	unsigned int m_timeout;
-	std::vector<CSmartGroupUser>  m_users;
+	std::string m_callsign;
+	std::string m_logoff;
+	std::string m_repeater;
+	std::string m_infoText;
+	std::string m_linkReflector;
+	LINK_STATUS m_linkStatus;
+	unsigned int m_userTimeout;
+	std::vector<CSmartGroupUser> m_users;
 };
 

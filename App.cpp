@@ -27,6 +27,7 @@
 
 #include "Config.h"
 #include "Handler.h"
+#include "SmartGroup.h"
 #include "DStarDefines.h"
 #include "SHA256.h"
 
@@ -64,9 +65,8 @@ static void RepRes2Up(std::string &name)	//replace, resize, to upper
 
 int main(int argc, char *argv[])
 {
-	if (argc < 4 || argc > 6) {
-		fprintf(stderr, "remotecontrold: invalid command line usage: %s <smartservername> <subscribe> link <reconnect> <reflector>\n", argv[0]);
-		fprintf(stderr, "                                            %s <smartservername> <subscribe> unlink\n", argv[0]);
+	if (argc < 4 || argc > 5) {
+		fprintf(stderr, "remotecontrold: invalid command line usage: %s <smartservername> <subscribe> list\n", argv[0]);
 		fprintf(stderr, "                                            %s <smartservername> <subscribe> drop <user>\n", argv[0]);
 		fprintf(stderr, "                                            %s <smartservername> <subscribe> drop all\n", argv[0]);
 		return 1;
@@ -79,53 +79,8 @@ int main(int argc, char *argv[])
 	std::string action(argv[3]);
 
 	std::string  user;						// For STARnet Digital
-	std::string  reflector;					// For linking
-	RECONNECT reconnect = RECONNECT_NEVER;	// For linking
 
-	if (0 == action.compare("link")) {
-		if (6 != argc) {
-			fprintf(stderr, "invalid command line! usage: %s <smartservername> <subscribe> link <reconnect> <reflector>\n", argv[0]);
-			return 1;
-		}
-
-		std::string reconnectText(argv[4]);
-
-		reflector = std::string(argv[5]);
-		RepRes2Up(reflector);
-
-		if        (0 == reconnectText.compare("never")) {
-			reconnect = RECONNECT_NEVER;
-		} else if (0 == reconnectText.compare("fixed")) {
-			reconnect = RECONNECT_FIXED;
-		} else if (0 == reconnectText.compare("5")) {
-			reconnect = RECONNECT_5MINS;
-		} else if (0 == reconnectText.compare("10")) {
-			reconnect = RECONNECT_10MINS;
-		} else if (reconnectText.compare("15")) {
-			reconnect = RECONNECT_15MINS;
-		} else if (reconnectText.compare("20")) {
-			reconnect = RECONNECT_20MINS;
-		} else if (reconnectText.compare("25")) {
-			reconnect = RECONNECT_25MINS;
-		} else if (reconnectText.compare("30")) {
-			reconnect = RECONNECT_30MINS;
-		} else if (reconnectText.compare("60")) {
-			reconnect = RECONNECT_60MINS;
-		} else if (reconnectText.compare("90")) {
-			reconnect = RECONNECT_90MINS;
-		} else if (reconnectText.compare("120")) {
-			reconnect = RECONNECT_120MINS;
-		} else if (reconnectText.compare("180")) {
-			reconnect = RECONNECT_180MINS;
-		} else {
-			fprintf(stderr, "%s: invalid reconnect value\n", argv[0]);
-			fprintf(stderr, "Valid reconnect values are never, fixed, 5, 10, 15, 20, 25, 30, 60, 90, 120, 180.\n");
-			return 1;
-		}
-	} else if (0 == action.compare("unlink")) {
-		reconnect = RECONNECT_NEVER;
-		reflector.clear();
-	} else if (0 == action.compare("drop")) {
+	if (0 == action.compare("drop")) {
 		if (5 != argc) {
 			fprintf(stderr, "%s: invalid command line usage: %s <smartservername> <subscribe> drop <user>\n", argv[0], argv[0]);
 			fprintf(stderr, "                                %s <smartservername> <subscribe> drop all\n", argv[0]);
@@ -134,8 +89,9 @@ int main(int argc, char *argv[])
 
 		user = std::string(argv[4]);
 		RepRes2Up(user);
+	} else if (0 == action.compare("list")) {
 	} else {
-		fprintf(stderr, "%s: invalid action value passed, only drop, link or unlink are allowed\n", argv[0]);
+		fprintf(stderr, "%s: invalid action value passed, only drop or list are allowed\n", argv[0]);
 		return 1;
 	}
 
@@ -192,7 +148,7 @@ int main(int argc, char *argv[])
 
 	if (count >= 10U) {
 		handler.close();
-		fprintf(stderr, "%s: unable to get a response from the gateway/starnetserver\n", argv[0]);
+		fprintf(stderr, "%s: unable to get a response from the smart-group-server\n", argv[0]);
 		return 1;
 	}
 
@@ -208,6 +164,7 @@ int main(int argc, char *argv[])
 			break;
 
 		if (type == RCT_NAK) {
+			fprintf(stderr, "ERROR from %s: %s\n", smartserver.c_str(), handler.readNAK().c_str());
 			handler.close();
 			fprintf(stderr, "%s: invalid password sent to the smart-group-server\n", argv[0]);
 			return 1;
@@ -230,9 +187,10 @@ int main(int argc, char *argv[])
 	if (0 == action.compare("drop"))
 		handler.logoff(subscribe, user);
 	else
-		handler.link(subscribe, reconnect, reflector);
+		handler.getSmartGroup(subscribe);
 
 	count = 0U;
+	CSmartGroup *smartGroup = NULL;
 	while (count < 10U) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -241,6 +199,7 @@ int main(int argc, char *argv[])
 			break;
 
 		if (type == RCT_NAK) {
+			fprintf(stderr, "ERROR from server %s: %s\n", smartserver.c_str(), handler.readNAK().c_str());
 			handler.close();
 			fprintf(stderr, "%s: drop/link/unlink command rejected by the smart-group-server\n", argv[0]);
 			return 1;
@@ -248,6 +207,11 @@ int main(int argc, char *argv[])
 
 		if (type == RCT_NONE)
 			handler.retry();
+
+		if (type == RCT_STARNET) {
+			smartGroup = handler.readSmartGroup();
+			break;
+		}
 
 		count++;
 	}
@@ -258,7 +222,33 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	fprintf(stdout, "%s: command accepted by the gateway/starnetserver\n", argv[0]);
+	if (smartGroup) {
+		printf("Subscribe = %s\n", smartGroup->getCallsign().c_str());
+		printf("Unsubscribe = %s\n", smartGroup->getLogoff().c_str());
+		printf("Repeater = %s\n", smartGroup->getRepeater().c_str());
+		printf("Description = %s\n", smartGroup->getInfoText().c_str());
+		printf("Reflector = %s\nLink Status = ", smartGroup->getReflector().c_str());
+		switch (smartGroup->getLinkStatus()) {
+			case LS_LINKING_DCS:
+			case LS_LINKING_DEXTRA:
+				printf("Linking\n");
+				break;
+			case LS_LINKED_DCS:
+			case LS_LINKED_DEXTRA:
+				printf("Linked\n");
+				break;
+			default:
+				printf("Unlinked\n");
+				break;
+		}
+		printf("User Timeout = %d min\n", smartGroup->getUserTimeout());
+		for (unsigned int i=0; i<smartGroup->getUserCount(); i++) {
+			CSmartGroupUser user = smartGroup->getUser(i);
+			printf("User = %s, timer = %d, timeout = %d\n", user.getCallsign().c_str(), user.getTimer(), user.getTimeout());
+		}
+		delete smartGroup;
+	} else
+		fprintf(stdout, "%s: command accepted by the smart-group-server\n", argv[0]);
 
 	handler.logout();
 	handler.close();
