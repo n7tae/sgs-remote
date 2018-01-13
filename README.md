@@ -10,7 +10,7 @@ This smart-group-server remote control application, `sgsremote` is based on Jona
 
 ## Server OS Requirements
 
-The smart-group-server requires a modern OS to compile and run. At least Debian 8 or Ubuntu 16.10, or equivilent. The command
+The smart-group-server remote program requires a modern OS to compile and run. At least Debian 8 or Ubuntu 16.10, or equivilent. The command
 ```
 g++ --version
 ```
