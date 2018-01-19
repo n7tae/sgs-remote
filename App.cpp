@@ -66,31 +66,49 @@ static void RepRes2Up(std::string &name)	//replace, resize, to upper
 int main(int argc, char *argv[])
 {
 	if (argc < 4 || argc > 5) {
-		fprintf(stderr, "%s Version 180116\n", argv[0]);
-		fprintf(stderr, "Command line usage: %s <smartservername> <subscribe> list\n", argv[0]);
-		fprintf(stderr, "                    %s <smartservername> <subscribe> drop <user>\n", argv[0]);
-		fprintf(stderr, "                    %s <smartservername> <subscribe> drop all\n", argv[0]);
+		fprintf(stderr, "%s Version 180118\n", argv[0]);
+		fprintf(stderr, "Command line usage: %s <servername> <subscribe> list\n", argv[0]);
+		fprintf(stderr, "                    %s <servername> <subscribe> drop <user>\n", argv[0]);
+		fprintf(stderr, "                    %s <servername> <subscribe> drop all\n", argv[0]);
+		fprintf(stderr, "                    %s <servername> <subscribe> unlink\n", argv[0]);
+		fprintf(stderr, "                    %s <servername> <subscribe> link <reflector>\n", argv[0]);
 		return 1;
 	}
- 
+
 	std::string smartserver(argv[1]);
 	std::string subscribe(argv[2]);
 	RepRes2Up(subscribe);
 
 	std::string action(argv[3]);
 
-	std::string  user;						// For STARnet Digital
+	std::string user, reflector;
 
 	if (0 == action.compare("drop")) {
 		if (5 != argc) {
-			fprintf(stderr, "%s: invalid command line usage: %s <smartservername> <subscribe> drop <user>\n", argv[0], argv[0]);
-			fprintf(stderr, "                                %s <smartservername> <subscribe> drop all\n", argv[0]);
+			fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> drop <user>\n", argv[0]);
+			fprintf(stderr, "                             %s <servername> <subscribe> drop all\n", argv[0]);
 			return 1;
 		}
 
 		user = std::string(argv[4]);
 		RepRes2Up(user);
 	} else if (0 == action.compare("list")) {
+		if (4 != argc) {
+			fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> list\n", argv[0]);
+			return 1;
+		}
+	} else if (0 == action.compare("unlink")) {
+		if (4 != argc) {
+			fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> unlink\n", argv[0]);
+			return 1;
+		}
+	} else if (0 == action.compare("link")) {
+		if (5 != argc) {
+			fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> link <reflector>\n", argv[0]);
+			return 1;
+		}
+		reflector = std::string(argv[4]);
+		RepRes2Up(reflector);
 	} else {
 		fprintf(stderr, "%s: invalid action value passed, only drop or list are allowed\n", argv[0]);
 		return 1;
@@ -187,6 +205,10 @@ int main(int argc, char *argv[])
 
 	if (0 == action.compare("drop"))
 		handler.logoff(subscribe, user);
+	else if (0 == action.compare("unlink"))
+		handler.unlink(subscribe);
+	else if (0 == action.compare("link"))
+		handler.link(subscribe, reflector);
 	else
 		handler.getSmartGroup(subscribe);
 
@@ -202,7 +224,7 @@ int main(int argc, char *argv[])
 		if (type == RCT_NAK) {
 			fprintf(stderr, "ERROR from server %s: %s\n", smartserver.c_str(), handler.readNAK().c_str());
 			handler.close();
-			fprintf(stderr, "%s: drop/link/unlink command rejected by the smart-group-server\n", argv[0]);
+			fprintf(stderr, "%s: drop/list/link/unlink command rejected by the smart-group-server\n", argv[0]);
 			return 1;
 		}
 
@@ -245,11 +267,11 @@ int main(int argc, char *argv[])
 		printf("User Timeout = %d min\n", smartGroup->getUserTimeout());
 		for (unsigned int i=0; i<smartGroup->getUserCount(); i++) {
 			CSmartGroupUser user = smartGroup->getUser(i);
-			printf("User = %s, timer = %d, timeout = %d\n", user.getCallsign().c_str(), user.getTimer(), user.getTimeout());
+			printf("User = %s, timer = %u min, timeout = %u min\n", user.getCallsign().c_str(), user.getTimer()/60U, user.getTimeout()/60U);
 		}
 		delete smartGroup;
 	} else
-		fprintf(stdout, "%s: command accepted by the smart-group-server\n", argv[0]);
+		fprintf(stdout, "The %s command accepted by the smart-group-server\n", action.c_str());
 
 	handler.logout();
 	handler.close();

@@ -407,7 +407,7 @@ bool CHandler::getSmartGroup(const std::string &callsign)
 	}
 }
 
-bool CHandler::link(const std::string &callsign, RECONNECT reconnect, const std::string &reflector)
+bool CHandler::link(const std::string &callsign, const std::string &reflector)
 {
 	assert(callsign.size());
 
@@ -428,12 +428,6 @@ bool CHandler::link(const std::string &callsign, RECONNECT reconnect, const std:
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	int32_t temp1 = int32_t(reconnect);
-	int32_t temp2 = temp1;
-	memcpy(p, &temp2, sizeof(int32_t));
-	m_outLength += sizeof(int32_t);
-	p += sizeof(int32_t);
-
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
 	for (unsigned int i = 0U; i < reflector.size(); i++)
 		p[i] = reflector.at(i);
@@ -451,7 +445,7 @@ bool CHandler::link(const std::string &callsign, RECONNECT reconnect, const std:
 	}
 }
 
-bool CHandler::unlink(const std::string &callsign, PROTOCOL protocol, const std::string &reflector)
+bool CHandler::unlink(const std::string &callsign)
 {
 	assert(callsign.size());
 
@@ -468,19 +462,6 @@ bool CHandler::unlink(const std::string &callsign, PROTOCOL protocol, const std:
 	memset(p, ' ', LONG_CALLSIGN_LENGTH);
 	for (unsigned int i = 0U; i < callsign.size(); i++)
 		p[i] = callsign.at(i);
-
-	m_outLength += LONG_CALLSIGN_LENGTH;
-	p += LONG_CALLSIGN_LENGTH;
-
-	int32_t temp1 = int32_t(protocol);
-	int32_t temp2 = temp1;
-	memcpy(p, &temp2, sizeof(int32_t));
-	m_outLength += sizeof(int32_t);
-	p += sizeof(int32_t);
-
-	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < reflector.size(); i++)
-		p[i] = reflector.at(i);
 
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;

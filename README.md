@@ -6,6 +6,8 @@ This smart-group-server remote control application, `sgsremote` is based on Jona
 
 ### What's New
 
+* **V# 180118** Linking and unlinking are now supported: `link` and `unlink`. A group that is linked to an XRF reflector can be unlinked and linked to a DCS reflector and *vis versa*.
+
 * **V# 180111** This first version only supports two actions: `drop` is used to unsubscribe users from a smart-group. `list` is used to print information about a smart-group.
 
 ## Server OS Requirements

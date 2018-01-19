@@ -60,8 +60,8 @@ public:
 	bool getRepeater(const std::string &callsign);
 	bool getSmartGroup(const std::string &callsign);
 
-	bool link(const std::string &callsign, RECONNECT reconnect, const std::string &reflector);
-	bool unlink(const std::string &callsign, PROTOCOL protocol, const std::string &reflector);
+	bool link(const std::string &callsign, const std::string &reflector);
+	bool unlink(const std::string &callsign);
 	bool logoff(const std::string &callsign, const std::string &user);
 
 	bool logout();
