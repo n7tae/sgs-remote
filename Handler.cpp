@@ -216,6 +216,9 @@ CSmartGroup *CHandler::readSmartGroup()
 	if (m_type != RCT_STARNET)
 		return NULL;
 
+	if (m_inLength < 23 + 4 * LONG_CALLSIGN_LENGTH + sizeof(unsigned int) + sizeof(enum LINK_STATUS))
+		return NULL;
+
 	unsigned char* p = m_inBuffer + 3U;
 	unsigned int pos = 3U;
 
@@ -251,7 +254,7 @@ CSmartGroup *CHandler::readSmartGroup()
 
 	CSmartGroup *group = new CSmartGroup(callsign, logoff, repeater, infoText, reflector, ls, ut);
 
-	while (pos < m_inLength) {
+	while (pos + LONG_CALLSIGN_LENGTH + 2U * sizeof(int32_t) <= m_inLength) {
 		std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
 		pos += LONG_CALLSIGN_LENGTH;
 		p += LONG_CALLSIGN_LENGTH;

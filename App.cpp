@@ -66,7 +66,7 @@ static void RepRes2Up(std::string &name)	//replace, resize, to upper
 int main(int argc, char *argv[])
 {
 	if (argc < 4 || argc > 5) {
-		fprintf(stderr, "%s Version 180118\n", argv[0]);
+		fprintf(stderr, "%s Version 180123\n", argv[0]);
 		fprintf(stderr, "Command line usage: %s <servername> <subscribe> list\n", argv[0]);
 		fprintf(stderr, "                    %s <servername> <subscribe> drop <user>\n", argv[0]);
 		fprintf(stderr, "                    %s <servername> <subscribe> drop all\n", argv[0]);
