@@ -21,7 +21,6 @@
 
 #include <string>
 
-#include "RepeaterData.h"
 #include "SmartGroup.h"
 #include "CallsignData.h"
 #include "UDPReaderWriter.h"
@@ -48,7 +47,6 @@ public:
 	std::string    readNAK();
 	unsigned int   readRandom();
 	CCallsignData *readCallsigns();
-	CRepeaterData *readRepeater();
 	CSmartGroup   *readSmartGroup();
 
 	bool login();
@@ -57,7 +55,6 @@ public:
 	void setLoggedIn(bool set);
 
 	bool getCallsigns();
-	bool getRepeater(const std::string &callsign);
 	bool getSmartGroup(const std::string &callsign);
 
 	bool link(const std::string &callsign, const std::string &reflector);

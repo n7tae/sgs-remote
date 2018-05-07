@@ -157,60 +157,6 @@ CCallsignData *CHandler::readCallsigns()
 	return data;
 }
 
-CRepeaterData *CHandler::readRepeater()
-{
-	if (m_type != RCT_REPEATER)
-		return NULL;
-
-	unsigned char* p = m_inBuffer + 3U;
-	unsigned int pos = 3U;
-
-	std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
-	pos += LONG_CALLSIGN_LENGTH;
-	p += LONG_CALLSIGN_LENGTH;
-
-	int32_t reconnect;
-	memcpy(&reconnect, p, sizeof(int32_t));
-	pos += sizeof(int32_t);
-	p += sizeof(int32_t);
-
-	std::string reflector((char*)p, LONG_CALLSIGN_LENGTH);
-	pos += LONG_CALLSIGN_LENGTH;
-	p += LONG_CALLSIGN_LENGTH;
-
-	CRepeaterData* data = new CRepeaterData(callsign, reconnect, reflector);
-
-	while (pos < m_inLength) {
-		std::string callsign((char*)p, LONG_CALLSIGN_LENGTH);
-		pos += LONG_CALLSIGN_LENGTH;
-		p += LONG_CALLSIGN_LENGTH;
-
-		int32_t protocol;
-		memcpy(&protocol, p, sizeof(int32_t));
-		pos += sizeof(int32_t);
-		p += sizeof(int32_t);
-
-		int32_t linked;
-		memcpy(&linked, p, sizeof(int32_t));
-		pos += sizeof(int32_t);
-		p += sizeof(int32_t);
-
-		int32_t direction;
-		memcpy(&direction, p, sizeof(int32_t));
-		pos += sizeof(int32_t);
-		p += sizeof(int32_t);
-
-		int32_t dongle;
-		memcpy(&dongle, p, sizeof(int32_t));
-		pos += sizeof(int32_t);
-		p += sizeof(int32_t);
-
-		data->addLink(callsign, protocol, linked, direction, dongle);
-	}
-
-	return data;
-}
-
 CSmartGroup *CHandler::readSmartGroup()
 {
 	if (m_type != RCT_STARNET)
@@ -337,37 +283,6 @@ bool CHandler::sendHash(const unsigned char *hash, unsigned int length)
 	memcpy(p, hash, length);
 	m_outLength += length;
 	p += length;
-
-	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
-	if (!ret) {
-		m_retryCount = 0U;
-		return false;
-	} else {
-		m_retryCount = 1U;
-		return true;
-	}
-}
-
-bool CHandler::getRepeater(const std::string &callsign)
-{
-	assert(callsign.size());
-
-	if (!m_loggedIn || m_retryCount > 0U)
-		return false;
-
-	unsigned char* p = m_outBuffer;
-	m_outLength = 0U;
-
-	memcpy(p, "GRP", 3U);
-	m_outLength += 3U;
-	p += 3U;
-
-	memset(p, ' ', LONG_CALLSIGN_LENGTH);
-	for (unsigned int i = 0U; i < callsign.size(); i++)
-		p[i] = callsign.at(i);
-
-	m_outLength += LONG_CALLSIGN_LENGTH;
-	p += LONG_CALLSIGN_LENGTH;
 
 	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
 	if (!ret) {
