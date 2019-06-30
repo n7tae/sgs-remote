@@ -22,16 +22,14 @@
 #include <cstdint>
 
 #include "Handler.h"
-#include "../smart-group-server/DStarDefines.h"
+#include "DStarDefines.h"
 
 const unsigned int BUFFER_LENGTH = 2000U;
 
 const unsigned int MAX_RETRIES = 3U;
 
-CHandler::CHandler(const std::string &address, unsigned int port) :
-m_socket("", 0U),
-m_address(),
-m_port(port),
+CHandler::CHandler(const std::string &address, unsigned short port) :
+m_socket((address.find(':')==std::string::npos) ? AF_INET : AF_INET6, port),
 m_loggedIn(false),
 m_retryCount(0U),
 m_type(RCT_NONE),
@@ -43,7 +41,8 @@ m_outLength(0U)
 	assert(!address.empty());
 	assert(port > 0U);
 
-	m_address = CUDPReaderWriter::lookup(address);
+	int family = (std::string::npos == address.find(':')) ? AF_INET : AF_INET6;
+	m_addr.Initialize(family, port, address.c_str());
 
 	m_inBuffer  = new unsigned char[BUFFER_LENGTH];
 	m_outBuffer = new unsigned char[BUFFER_LENGTH];
@@ -57,17 +56,16 @@ CHandler::~CHandler()
 
 bool CHandler::open()
 {
-	return m_socket.open();
+	return m_socket.Open();
 }
 
 RC_TYPE CHandler::readType()
 {
 	m_type = RCT_NONE;
 
-	in_addr address;
-	unsigned int port;
+	CSockAddress addr;
 
-	int length = m_socket.read(m_inBuffer, BUFFER_LENGTH, address, port);
+	int length = m_socket.Read(m_inBuffer, BUFFER_LENGTH, addr);
 	if (length <= 0)
 		return m_type;
 
@@ -226,13 +224,10 @@ bool CHandler::login()
 	if (m_loggedIn)
 		return false;
 
-	if (m_address.s_addr == INADDR_NONE)
-		return false;
-
 	memcpy(m_outBuffer, "LIN", 3U);
 	m_outLength = 3U;
 
-	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+	bool ret = m_socket.Write(m_outBuffer, m_outLength, m_addr);
 	if (!ret) {
 		m_retryCount = 0U;
 		return false;
@@ -255,7 +250,7 @@ bool CHandler::getCallsigns()
 	memcpy(m_outBuffer, "GCS", 3U);
 	m_outLength = 3U;
 
-	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+	bool ret = m_socket.Write(m_outBuffer, m_outLength, m_addr);
 	if (!ret) {
 		m_retryCount = 0U;
 		return false;
@@ -284,7 +279,7 @@ bool CHandler::sendHash(const unsigned char *hash, unsigned int length)
 	m_outLength += length;
 	p += length;
 
-	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+	bool ret = m_socket.Write(m_outBuffer, m_outLength, m_addr);
 	if (!ret) {
 		m_retryCount = 0U;
 		return false;
@@ -315,7 +310,7 @@ bool CHandler::getSmartGroup(const std::string &callsign)
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+	bool ret = m_socket.Write(m_outBuffer, m_outLength, m_addr);
 	if (!ret) {
 		m_retryCount = 0U;
 		return false;
@@ -353,7 +348,7 @@ bool CHandler::link(const std::string &callsign, const std::string &reflector)
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+	bool ret = m_socket.Write(m_outBuffer, m_outLength, m_addr);
 	if (!ret) {
 		m_retryCount = 0U;
 		return false;
@@ -384,7 +379,7 @@ bool CHandler::unlink(const std::string &callsign)
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+	bool ret = m_socket.Write(m_outBuffer, m_outLength, m_addr);
 	if (!ret) {
 		m_retryCount = 0U;
 		return false;
@@ -423,7 +418,7 @@ bool CHandler::logoff(const std::string &callsign, const std::string &user)
 	m_outLength += LONG_CALLSIGN_LENGTH;
 	p += LONG_CALLSIGN_LENGTH;
 
-	bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+	bool ret = m_socket.Write(m_outBuffer, m_outLength, m_addr);
 	if (!ret) {
 		m_retryCount = 0U;
 		return false;
@@ -442,7 +437,7 @@ bool CHandler::logout()
 	m_outLength = 3U;
 
 	for (unsigned int i = 0U; i < 5U; i++) {
-		bool ret = m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+		bool ret = m_socket.Write(m_outBuffer, m_outLength, m_addr);
 		if (!ret) {
 			m_retryCount = 0U;
 			return false;
@@ -463,7 +458,7 @@ bool CHandler::retry()
 			return false;
 		}
 
-		m_socket.write(m_outBuffer, m_outLength, m_address, m_port);
+		m_socket.Write(m_outBuffer, m_outLength, m_addr);
 	}
 
 	return true;
@@ -471,5 +466,5 @@ bool CHandler::retry()
 
 void CHandler::close()
 {
-	m_socket.close();
+	m_socket.Close();
 }

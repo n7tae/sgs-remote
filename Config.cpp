@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2018 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018-2019 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ CConfig::CConfig(const std::string &pathname)
 		if (name.size()) {
 			if (m_server.end() == m_server.find(name)) {
 				std::string address, password;
-				unsigned int port;
+				unsigned short port;
 				snprintf(key, 32, "server.[%d].address", i);
 				get_value(cfg, key, address, 7, 128, "127.0.0.1");
 				snprintf(key, 32, "server.[%d].password", i);
@@ -58,7 +58,7 @@ CConfig::CConfig(const std::string &pathname)
 				int iport;
 				snprintf(key, 32, "server.[%d].port", i);
 				get_value(cfg, key, iport, 100, 66635, 39999);
-				port = (unsigned int)iport;
+				port = (unsigned short)iport;
 				struct Sserver *pserver = new struct Sserver;
 				pserver->address = address;
 				pserver->password = password;
@@ -103,7 +103,7 @@ bool CConfig::get_value(const Config &cfg, const char *path, std::string &value,
 	return true;
 }
 
-bool CConfig::getConfig(const std::string name, std::string &address, unsigned int &port, std::string &password)
+bool CConfig::getConfig(const std::string name, std::string &address, unsigned short &port, std::string &password)
 {
 	auto it = m_server.find(name);
 	if (it == m_server.end())

@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2011,2013 by Jonathan Naylor G4KLX
- *   Copyright (c) 2018 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018-2019 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include "SmartGroup.h"
 #include "CallsignData.h"
 #include "UDPReaderWriter.h"
+#include "SockAddress.h"
 
 enum RC_TYPE {
 	RCT_NONE,
@@ -37,7 +38,7 @@ enum RC_TYPE {
 
 class CHandler {
 public:
-	CHandler(const std::string &address, unsigned int port);
+	CHandler(const std::string &address, unsigned short port);
 	~CHandler();
 
 	bool open();
@@ -69,8 +70,7 @@ public:
 
 private:
 	CUDPReaderWriter  m_socket;
-	in_addr           m_address;
-	unsigned int      m_port;
+	CSockAddress      m_addr;
 	bool              m_loggedIn;
 	unsigned int      m_retryCount;
 	RC_TYPE           m_type;
@@ -79,4 +79,3 @@ private:
 	unsigned char    *m_outBuffer;
 	unsigned int      m_outLength;
 };
-

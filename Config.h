@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2018 by Thomas A. Early
+ *   Copyright (c) 2018-2019 by Thomas A. Early
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,17 +25,17 @@ using namespace libconfig;
 struct Sserver {
 	std::string address;
 	std::string password;
-	unsigned int port;
+	unsigned short port;
 };
 
 class CConfig {
 public:
 	CConfig(const std::string &pathname);
 	~CConfig();
-	bool getConfig(const std::string name, std::string &address, unsigned int &port, std::string &password);
+	bool getConfig(const std::string name, std::string &address, unsigned short &port, std::string &password);
 private:
 	std::map<std::string, struct Sserver *> m_server;
-	
+
 	bool get_value(const Config &cfg, const char *path, int &value, int min, int max, int default_value);
 	bool get_value(const Config &cfg, const char *path, std::string &value, int min, int max, const char *default_value);
 };

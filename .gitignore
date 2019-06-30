@@ -26,5 +26,6 @@
 *.a
 *.lib
 
-# Executables
+# Executables and config files
 sgsremote
+sgsremote.conf

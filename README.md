@@ -6,6 +6,8 @@ This smart-group-server remote control application, `sgsremote` is based on Jona
 
 ### What's New
 
+* **V# 190630** `sgsremote` now compiles with the newer UDPReaderWriter used in the *smart-group-server* and should support IPv6 connections. The configuration file must use numeric addresses and not "dotted-name" values. If an IPv6 address is specified, an IPv6 connection will be made. It's okay to have some targets as IPv6 and some IPv4 in the `sgsremote.conf` file.
+
 * **V# 180118** Linking and unlinking are now supported: `link` and `unlink`. A group that is linked to an XRF reflector can be unlinked and linked to a DCS reflector and *vis versa*.
 
 * **V# 180111** This first version only supports two actions: `drop` is used to unsubscribe users from a smart-group. `list` is used to print information about a smart-group.

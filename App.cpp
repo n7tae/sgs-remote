@@ -66,7 +66,7 @@ static void RepRes2Up(std::string &name)	//replace, resize, to upper
 int main(int argc, char *argv[])
 {
 	if (argc < 4 || argc > 5) {
-		fprintf(stderr, "%s Version 180507\n", argv[0]);
+		fprintf(stderr, "%s Version 190630\n", argv[0]);
 		fprintf(stderr, "Command line usage: %s <servername> <subscribe> list\n", argv[0]);
 		fprintf(stderr, "                    %s <servername> <subscribe> drop <user>\n", argv[0]);
 		fprintf(stderr, "                    %s <servername> <subscribe> drop all\n", argv[0]);
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 	CConfig config(cfgfile);
 
 	std::string address, password;
-	unsigned int port;
+	unsigned short port;
 	if (false == config.getConfig(smartserver, address, port, password)) {
 		fprintf(stderr, "%s: '%s' smartserver not found in configuration file!\n", argv[0], smartserver.c_str());
 		return 1;
