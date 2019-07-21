@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 
 	if (count >= 10U) {
 		handler.close();
-		fprintf(stderr, "%s: unable to get a response from the smart-group-server\n", argv[0]);
+		fprintf(stderr, "%s: unable to get a response from the smart-group-server after loging in\n", argv[0]);
 		return 1;
 	}
 
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 
 	if (count >= 10U) {
 		handler.close();
-		fprintf(stderr, "%s: unable to get a response from the smart-group-server\n", argv[0]);
+		fprintf(stderr, "%s: unable to get a response from the smart-group-server after sending password hash\n", argv[0]);
 		return 1;
 	}
 
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
 
 	if (count >= 10U) {
 		handler.close();
-		fprintf(stderr, "%s: unable to get a response from the smart-group-server\n", argv[0]);
+		fprintf(stderr, "%s: unable to get a response from the smart-group-server after sending command %s\n", argv[0], action.c_str());
 		return 1;
 	}
 
