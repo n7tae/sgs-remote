@@ -29,7 +29,7 @@ const unsigned int BUFFER_LENGTH = 2000U;
 const unsigned int MAX_RETRIES = 3U;
 
 CHandler::CHandler(const std::string &address, unsigned short port) :
-m_socket((address.find(':')==std::string::npos) ? AF_INET : AF_INET6, port),
+m_socket((address.find(':')==std::string::npos) ? AF_INET : AF_INET6, (unsigned short)0),	// use ephemeral port
 m_loggedIn(false),
 m_retryCount(0U),
 m_type(RCT_NONE),
@@ -46,6 +46,7 @@ m_outLength(0U)
 
 	m_inBuffer  = new unsigned char[BUFFER_LENGTH];
 	m_outBuffer = new unsigned char[BUFFER_LENGTH];
+
 }
 
 CHandler::~CHandler()
