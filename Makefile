@@ -13,7 +13,7 @@ OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
 sgsremote :  $(OBJS)
-	g++ $(CPPFLAGS) -o sgsremote $(OBJS) -L/usr/lib -lconfig++ -pthread
+	g++ $(CPPFLAGS) -o sgsremote $(OBJS) -L/usr/lib -lconfig++ -lssl -lcrypto
 
 %.o : %.cpp
 	g++ $(CPPFLAGS) -MMD -MD -c $< -o $@

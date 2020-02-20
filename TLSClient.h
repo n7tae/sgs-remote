@@ -1,6 +1,7 @@
+#pragma once
+
 /*
- *   Copyright (C) 2011 by Jonathan Naylor G4KLX
- *   Copyright (c) 2018 by Thomas A. Early N7TAE
+ *   Copyright (C) 2020 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,22 +18,25 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#pragma once
-
 #include <string>
-#include <cstdint>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
-class CSmartGroupUser {
+class CTLSClient
+{
 public:
-	CSmartGroupUser(const std::string &callsign, int32_t timer, int32_t timeout);
-	~CSmartGroupUser();
+	CTLSClient() : m_sock(-1) , m_ctx(NULL), m_ssl(NULL) {}
+	~CTLSClient();
+	bool Open(const char *address, unsigned short port);
+	void SendCommand(const char *password, const char *command);
+	int Read(char *buf, int size);
+protected:
+	bool CreateContext(const SSL_METHOD *method);
+	virtual bool CreateSocket();
 
-	std::string  getCallsign() const;
-	unsigned int getTimer() const;
-	unsigned int getTimeout() const;
-
-private:
-	std::string  m_callsign;
-	unsigned int m_timer;
-	unsigned int m_timeout;
+	int m_sock;
+	SSL_CTX *m_ctx;
+	SSL *m_ssl;
+	std::string m_address;
+	unsigned short m_port;
 };
