@@ -72,7 +72,7 @@ void CTLSClient::SendCommand(const char *password, const char *command)
 		return;
 	}
 
-	printf("Using %s encryption\n", SSL_get_cipher(m_ssl));
+	//printf("Using %s encryption\n", SSL_get_cipher(m_ssl));
 
 	int size = (int)strlen(password);
 	if (size != SSL_write(m_ssl, password, size)) {
@@ -118,16 +118,18 @@ bool CTLSClient::CreateSocket()
 		return true;
 	}
 
+	//printf("Create %s TCP socket on %u port\n", (AF_INET == family) ? "AF_INET" : "AF_INET6", m_port);
+
 	m_sock = socket(family, SOCK_STREAM, 0);
 	if (m_sock < 0) {
-		perror("Unable to create socket");
+		fprintf(stderr, "Unable to create socket, %s\n", strerror(errno));
 		return true;
 	}
 
 	socklen_t size = (AF_INET == family) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
 
 	if (connect(m_sock, (struct sockaddr *)&addr, size)) {
-		fprintf(stderr, "connect() failed, cannot create socket!\n");
+		fprintf(stderr, "connect() failed, cannot create socket, %s\n", strerror(errno));
 		close(m_sock);
 		return true;
 	}

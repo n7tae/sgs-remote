@@ -28,12 +28,10 @@
 #include "Config.h"
 #include "TLSClient.h"
 
-static void RepRes2Up(std::string &name)	//replace, resize, to upper
+static void Res2Up(std::string &name)	//resize, to upper
 {
 	for (unsigned int i=0; i<name.size(); i++) {
-		if ('_' == name[i])
-			name[i] = ' ';
-		else if (islower(name[i]))
+		if (islower(name[i]))
 			name[i] = toupper(name[i]);
 	}
 	name.resize(8, ' ');
@@ -52,15 +50,20 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	std::string smartserver(argv[1]);
+	std::string sgsname(argv[1]);
 	std::string subscribe(argv[2]);
 	std::string action;
-	if (3!=argc && subscribe.compare("halt")) {
-		RepRes2Up(subscribe);
-		action.assign(argv[3]);
+	if (3 == argc) {
+		if (0 == subscribe.compare("halt")) {
+			action.assign("halt");
+			subscribe.clear();
+		} else {
+			fprintf(stderr, "Malformed command\n");
+			return 1;
+		}
 	} else {
-		action.assign("halt");
-		subscribe.clear();
+		Res2Up(subscribe);
+		action.assign(argv[3]);
 	}
 
 	std::string user, reflector;
@@ -73,8 +76,8 @@ int main(int argc, char *argv[])
 				return 1;
 			}
 
-			user = std::string(argv[4]);
-			RepRes2Up(user);
+			user.assign(argv[4]);
+			Res2Up(user);
 		} else if (0 == action.compare("list")) {
 			if (4 != argc) {
 				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> list\n", argv[0]);
@@ -90,8 +93,8 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> link <reflector>\n", argv[0]);
 				return 1;
 			}
-			reflector = std::string(argv[4]);
-			RepRes2Up(reflector);
+			reflector.assign(argv[4]);
+			Res2Up(reflector);
 		} else {
 			fprintf(stderr, "%s: invalid action value passed, only drop or list are allowed\n", argv[0]);
 			return 1;
@@ -112,8 +115,8 @@ int main(int argc, char *argv[])
 
 	std::string address, password;
 	unsigned short port;
-	if (false == config.getConfig(smartserver, address, port, password)) {
-		fprintf(stderr, "%s: '%s' smartserver not found in configuration file!\n", argv[0], smartserver.c_str());
+	if (false == config.getConfig(sgsname, address, port, password)) {
+		fprintf(stderr, "%s: '%s' sgsname not found in configuration file!\n", argv[0], sgsname.c_str());
 		return 1;
 	}
 
@@ -138,15 +141,20 @@ int main(int argc, char *argv[])
 		if (0 == action.compare("drop"))
 			command += " " + user;
 		else if (0 == action.compare("link"))
-			command + " " + reflector;
+			command += " " + reflector;
 	}
 
-	printf("sending command \"%s\" to %s\n", command.c_str(), smartserver.c_str());
+	//printf("sending command \"%s\" to %s\n", command.c_str(), sgsname.c_str());
 
 	tlsclient.SendCommand(password.c_str(), command.c_str());
 
-	char buf[128];
-	while (tlsclient.Read(buf, 128))
-		printf("%s\n", buf);
+	int ret;
+	do {
+		char buf[128] = { 0 };
+		ret = tlsclient.Read(buf, 128);
+		if (ret > 0)
+			printf("%s\n", buf);
+	} while (ret > 0);
+
 	return 0;
 }
