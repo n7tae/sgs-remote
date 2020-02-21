@@ -124,7 +124,9 @@ bool CTLSClient::CreateSocket()
 		return true;
 	}
 
-	if (connect(m_sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_storage))) {
+	socklen_t size = (AF_INET == family) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
+
+	if (connect(m_sock, (struct sockaddr *)&addr, size)) {
 		fprintf(stderr, "connect() failed, cannot create socket!\n");
 		close(m_sock);
 		return true;
