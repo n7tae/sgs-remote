@@ -6,6 +6,8 @@ This smart-group-server remote control application, `sgsremote` is based on Jona
 
 ### What's New
 
+* **V# 200221** The remote control port has been moved from UDP to a much more secure TLS/TCP port. Using UDP to handle a remote control port is really a bad idea. Switch to TLS/TCP has greatly simplified the client (this program). TCP is a much better choice because data exchange between the server (sgs server) and the client guaranteed synchronus exchange of data and the quick transaction inherent to the single-action remote control command. The amount source code needed for this new remote client is a fraction of that required for the previous version. The code base for the server has also shrunk. Be sure to open up the appropriate TCP port for remote control on the server to allow for incoming requests from clients. Of course, the UDP port is no longer used. This client version is compatible with *smart-group-server* version 200220 or newer. A new command is available for halting a server. Combined with systemd's auto restart feature, this will allow a client to reboot a server.
+
 * **V# 190630** `sgsremote` now compiles with the newer UDPReaderWriter used in the *smart-group-server* and should support IPv6 connections. The configuration file must use numeric addresses and not "dotted-name" values. If an IPv6 address is specified, an IPv6 connection will be made. It's okay to have some targets as IPv6 and some IPv4 in the `sgsremote.conf` file.
 
 * **V# 180118** Linking and unlinking are now supported: `link` and `unlink`. A group that is linked to an XRF reflector can be unlinked and linked to a DCS reflector and *vis versa*.
@@ -27,9 +29,9 @@ These instructions are for a Debian-based OS. Begin by downloading this git repo
 ```
 git clone git://github.com/n7tae/sgs-remote.git
 ```
-Install the only needed development library:
+Install the needed support:
 ```
-sudo apt-get install libconfig++-dev
+sudo apt-get install libconfig++-dev libssl-dev openssl
 ```
 Change to the sgs-remote directory and type `make`. This should make the executable, `sgsremote` without errors or warnings.
 
