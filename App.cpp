@@ -40,63 +40,56 @@ static void Res2Up(std::string &name)	//resize, to upper
 int main(int argc, char *argv[])
 {
 	if (argc < 3 || argc > 5) {
-		fprintf(stderr, "%s Version 200221\n", argv[0]);
-		fprintf(stderr, "Command line usage: %s <servername> <subscribe> list\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> <subscribe> drop <user>\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> <subscribe> drop all\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> <subscribe> unlink\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> <subscribe> link <reflector>\n", argv[0]);
+		fprintf(stderr, "%s Version 200222\n", argv[0]);
+		fprintf(stderr, "Command line usage: %s <servername> list   <subscribe>\n", argv[0]);
+		fprintf(stderr, "                    %s <servername> drop   <subscribe> <user>\n", argv[0]);
+		fprintf(stderr, "                    %s <servername> drop   <subscribe> all\n", argv[0]);
+		fprintf(stderr, "                    %s <servername> unlink <subscribe>\n", argv[0]);
+		fprintf(stderr, "                    %s <servername> link   <subscribe> <reflector>\n", argv[0]);
 		fprintf(stderr, "                    %s <servername> halt\n", argv[0]);
 		return 1;
 	}
 
 	std::string sgsname(argv[1]);
-	std::string subscribe(argv[2]);
-	std::string action;
+	std::string action(argv[2]);
+	std::string subscribe, object;
 	if (3 == argc) {
-		if (0 == subscribe.compare("halt")) {
-			action.assign("halt");
-			subscribe.clear();
+		if (0 == action.compare("halt")) {
 		} else {
-			fprintf(stderr, "Malformed command\n");
+			fprintf(stderr, "Malformed command. Did you mean %s %s halt?\n", argv[0], argv[2]);
 			return 1;
 		}
 	} else {
+		subscribe.assign(argv[3]);
 		Res2Up(subscribe);
-		action.assign(argv[3]);
-	}
-
-	std::string user, reflector;
-
-	if (action.compare("halt")) {
 		if (0 == action.compare("drop")) {
 			if (5 != argc) {
-				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> drop <user>\n", argv[0]);
-				fprintf(stderr, "                             %s <servername> <subscribe> drop all\n", argv[0]);
+				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> drop <subscribe> <user>\n", argv[0]);
+				fprintf(stderr, "                             %s <servername> drop <subscribe> all\n", argv[0]);
 				return 1;
 			}
 
-			user.assign(argv[4]);
-			Res2Up(user);
+			object.assign(argv[4]);
+			Res2Up(object);
 		} else if (0 == action.compare("list")) {
 			if (4 != argc) {
-				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> list\n", argv[0]);
+				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> list <subscribe>\n", argv[0]);
 				return 1;
 			}
 		} else if (0 == action.compare("unlink")) {
 			if (4 != argc) {
-				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> unlink\n", argv[0]);
+				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> unlink <subscribe>\n", argv[0]);
 				return 1;
 			}
 		} else if (0 == action.compare("link")) {
 			if (5 != argc) {
-				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> <subscribe> link <reflector>\n", argv[0]);
+				fprintf(stderr, "INVALID COMMAND LINE, usage: %s <servername> link <subscribe> <reflector>\n", argv[0]);
 				return 1;
 			}
-			reflector.assign(argv[4]);
-			Res2Up(reflector);
+			object.assign(argv[4]);
+			Res2Up(object);
 		} else {
-			fprintf(stderr, "%s: invalid action value passed, only drop or list are allowed\n", argv[0]);
+			fprintf(stderr, "%s: invalid action value passed, only halt, drop, link or unlink or list are allowed\n", argv[0]);
 			return 1;
 		}
 	}
@@ -132,16 +125,11 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	std::string command;
-	if (0 == action.compare("halt"))
-		command.assign(action);
-	else {
-		command.assign(subscribe);
-		command += " " + action;
-		if (0 == action.compare("drop"))
-			command += " " + user;
-		else if (0 == action.compare("link"))
-			command += " " + reflector;
+	std::string command(action);
+	if (action.compare("halt")) {
+		command += " " + subscribe;
+		if (0==action.compare("drop") || 0==action.compare("link"))
+			command += " " + object;
 	}
 
 	//printf("sending command \"%s\" to %s\n", command.c_str(), sgsname.c_str());
