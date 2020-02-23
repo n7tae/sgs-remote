@@ -39,15 +39,33 @@ static void Res2Up(std::string &name)	//resize, to upper
 
 int main(int argc, char *argv[])
 {
+	std::string cfgfile(getenv("HOME"));
+	cfgfile.append("/.config/sgsremote.conf");
+	struct stat sbuf;
+	if (stat(cfgfile.c_str(), &sbuf)) {
+		cfgfile.assign("/usr/local/etc/sgsremote.conf");
+		if (stat(cfgfile.c_str(), &sbuf)) {
+			fprintf(stderr, "ERROR: no configuration file found, exiting!\n");
+			return 1;
+		}
+	}
+
+	CConfig config(cfgfile);
+
 	if (argc < 3 || argc > 5) {
-		fprintf(stderr, "%s Version 200222\n", argv[0]);
-		fprintf(stderr, "Command line usage: %s <servername> list   <subscribe>\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> drop   <subscribe> <user>\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> drop   <subscribe> all\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> unlink <subscribe>\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> link   <subscribe> <reflector>\n", argv[0]);
-		fprintf(stderr, "                    %s <servername> halt\n", argv[0]);
-		return 1;
+		printf("%s Version 200223\n", argv[0]);
+		printf("Command line usage: %s <servername> halt\n", argv[0]);
+		printf("                    %s <servername> list all\n", argv[0]);
+		printf("                    %s <servername> list <subscribe>\n", argv[0]);
+		printf("                    %s <servername> drop <subscribe> <user>\n", argv[0]);
+		printf("                    %s <servername> drop <subscribe> all\n", argv[0]);
+		printf("                    %s <servername> link <subscribe> <reflector>\n", argv[0]);
+		printf("                    %s <servername> unlink <subscribe>\n", argv[0]);
+		printf("Configured server name are:\n");
+		auto servers = config.getServers();
+		for (auto it=servers.begin(); it!=servers.end(); it++)
+			printf("%s\n", it->c_str());
+		return 0;
 	}
 
 	std::string sgsname(argv[1]);
@@ -93,18 +111,6 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
-
-	std::string cfgfile(getenv("HOME"));
-	cfgfile.append("/.config/sgsremote.conf");
-	struct stat sbuf;
-	if (stat(cfgfile.c_str(), &sbuf)) {
-		cfgfile.assign("/usr/local/etc/sgsremote.conf");
-		if (stat(cfgfile.c_str(), &sbuf)) {
-			fprintf(stderr, "ERROR: no configuration file found, exiting!\n");
-			return 1;
-		}
-	}
-	CConfig config(cfgfile);
 
 	std::string address, password;
 	unsigned short port;

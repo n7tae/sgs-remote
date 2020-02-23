@@ -114,3 +114,11 @@ bool CConfig::getConfig(const std::string name, std::string &address, unsigned s
 	password = pserver->password;
 	return true;
 }
+
+std::list<std::string> CConfig::getServers()
+{
+	std::list<std::string> rtn;
+	for (auto it=m_server.begin(); it!=m_server.end(); it++)
+		rtn.push_back(it->first);
+	return rtn;
+}

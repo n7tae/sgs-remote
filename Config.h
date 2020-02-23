@@ -18,6 +18,7 @@
 
 #include <string>
 #include <map>
+#include <list>
 #include <libconfig.h++>
 
 using namespace libconfig;
@@ -33,6 +34,7 @@ public:
 	CConfig(const std::string &pathname);
 	~CConfig();
 	bool getConfig(const std::string name, std::string &address, unsigned short &port, std::string &password);
+	std::list<std::string> getServers();
 private:
 	std::map<std::string, struct Sserver *> m_server;
 
