@@ -37,11 +37,15 @@ Change to the sgs-remote directory and type `make`. This should make the executa
 
 ## Configuring
 
-Before you install the group server, you need to create a configuration file called `sgsremote.conf`. There is an example configuration file: `example.conf`. `sgsremote` is a command line program. You type a command and receive a response and then you are done. The remote can connect to any smart-group-server, you just need to configure a new section in the sgsremote.conf file. Copy example.conf to sgsremote.conf and then edit the new file.
+Before you install the group server, you need to create a configuration file called `sgsremote.conf`. There is an example configuration file: `example.conf`.
 
 ## Installing and Uninstalling
 
 To install and start the smart-group-server, type `sudo make install`. This will put all the executable in /usr/local/bin and the configuration file in /usr/local/etc. If sgsremote finds a sgsremote.conf in ~/.config/ it will use it instead of the one in /usr/local/etc. To uninstall it, type `sudo make uninstall`. This will remove /usr/local/bin/sgsremote and /usr/local/etc/sgsremote.conf.
+
+## Using
+
+The *sgsremote* program is a command line program. You type a command and receive a response and then you get a Linux prompt back. The *sgsremote* only accepts one command at a time. Type `sgsremote` without any parameters and it will print a usage message showing all commands that are possible. This usage message will also show all server names that you have configured in your `sgsremote.conf` file. All parameters for *sgsremote* are in lowercase. Please note that anytime you type a smart group login callsign or a reflector channel, replace any spaces with an underscore. For example, the `qnet20 c` smart group becomes `qnet20_c` and the `xrf735 a` reflector channel becomes `xrf735_a`. If you are using *sgsremote* to relink a smart group that has lost a link (the Routing Groups page reports "Linking" instead of "Linked"), please unlink the smart group before re-linking it.
 
 73
 
