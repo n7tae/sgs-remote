@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 	CConfig config(cfgfile);
 
 	if (argc < 3 || argc > 5) {
-		printf("%s Version 200223\n", argv[0]);
+		printf("%s Version 200227\n", argv[0]);
 		printf("Command line usage: %s <servername> halt\n", argv[0]);
 		printf("                    %s <servername> list all\n", argv[0]);
 		printf("                    %s <servername> list <subscribe>\n", argv[0]);

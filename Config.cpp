@@ -52,7 +52,7 @@ CConfig::CConfig(const std::string &pathname)
 				std::string address, password;
 				unsigned short port;
 				snprintf(key, 32, "server.[%d].address", i);
-				get_value(cfg, key, address, 7, 128, "127.0.0.1");
+				get_value(cfg, key, address, 3, 128, "127.0.0.1");
 				snprintf(key, 32, "server.[%d].password", i);
 				get_value(cfg, key, password, 8, 128, "changeme");
 				int iport;
