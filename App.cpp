@@ -39,11 +39,13 @@ static void Res2Up(std::string &name)	//resize, to upper
 
 int main(int argc, char *argv[])
 {
-	std::string cfgfile(getenv("HOME"));
+	char * home = getenv("HOME");
+	std::string cfgfile(home != NULL ? home : "");
 	cfgfile.append("/.config/sgsremote.conf");
 	struct stat sbuf;
 	if (stat(cfgfile.c_str(), &sbuf)) {
-		cfgfile.assign("/usr/local/etc/sgsremote.conf");
+		cfgfile.assign(CFG_DIR);
+		cfgfile.append("/sgsremote.conf");
 		if (stat(cfgfile.c_str(), &sbuf)) {
 			fprintf(stderr, "ERROR: no configuration file found, exiting!\n");
 			return 1;
