@@ -27,7 +27,7 @@ must return at least Version 4.9. The latest Debian and Ubuntu will be far above
 
 These instructions are for a Debian-based OS. Begin by downloading this git repository:
 ```
-git clone git://github.com/n7tae/sgs-remote.git
+git clone https://github.com/n7tae/sgs-remote.git
 ```
 Install the needed support:
 ```
