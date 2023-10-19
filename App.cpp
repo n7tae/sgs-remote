@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2013,2014 by Jonathan Naylor G4KLX
- *   Copyright (c) 2018,2020 by Thomas A. Early N7TAE
+ *   Copyright (c) 2018,2020, 2023 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,10 @@
 
 #include "Config.h"
 #include "TLSClient.h"
+
+#ifndef CFG_DIR
+#define CFG_DIR "/tmp"
+#endif
 
 static void Res2Up(std::string &name)	//resize, to upper
 {
@@ -55,7 +59,7 @@ int main(int argc, char *argv[])
 	CConfig config(cfgfile);
 
 	if (argc < 3 || argc > 5) {
-		printf("%s Version 200227\n", argv[0]);
+		printf("%s Version 231019\n", argv[0]);
 		printf("Command line usage: %s <servername> halt\n", argv[0]);
 		printf("                    %s <servername> list all\n", argv[0]);
 		printf("                    %s <servername> list <subscribe>\n", argv[0]);
@@ -63,6 +67,7 @@ int main(int argc, char *argv[])
 		printf("                    %s <servername> drop <subscribe> all\n", argv[0]);
 		printf("                    %s <servername> link <subscribe> <reflector>\n", argv[0]);
 		printf("                    %s <servername> unlink <subscribe>\n", argv[0]);
+		printf("\nWhere <server> is the sgs server callsign and <subscribe> is the smart-group callsign.\n\n");
 		printf("Configured server name are:\n");
 		auto servers = config.getServers();
 		for (auto it=servers.begin(); it!=servers.end(); it++)

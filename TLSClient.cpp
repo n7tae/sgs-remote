@@ -114,7 +114,7 @@ bool CTLSClient::CreateSocket()
 		a->sin_port = htons(m_port);
 		inet_pton(AF_INET, m_address.c_str(), &(a->sin_addr));
 	} else {
-		fprintf(stderr, "Improper addess [%s], remote socket creation failed!\n", m_address.c_str());
+		fprintf(stderr, "Improper address [%s], remote socket creation failed!\n", m_address.c_str());
 		return true;
 	}
 
