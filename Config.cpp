@@ -76,7 +76,7 @@ CConfig::~CConfig()
 		struct Sserver *pserver = it->second;
 		delete pserver;
 	}
-	m_server.empty();
+	m_server.clear();
 }
 
 bool CConfig::get_value(const Config &cfg, const char *path, int &value, int min, int max, int default_value)
